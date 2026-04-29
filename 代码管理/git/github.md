@@ -1,8 +1,12 @@
+github:
+**项目**
+	obsidian-vault:git@github.com:ZWKAI/obsidian-vault.git
 **维护远程仓库**
 	添加远程仓库地址：
 		git remote add origin git@github.com:ZWKAI/obsidian-vault.git
 	修改远程仓库地址：
 		git remote set-url origin git@github.com:ZWKAI/obsidian-vault.git
+
 
 
 **秘钥配置**：
