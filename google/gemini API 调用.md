@@ -1,3 +1,7 @@
+### api key管理：
+[https://aistudio.google.com/api-keys](https://aistudio.google.com/api-keys)
+
+### 请求示例：
 curl:
  curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent" \
   -H 'Content-Type: application/json' \
