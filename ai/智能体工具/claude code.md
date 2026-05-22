@@ -19,8 +19,8 @@ json
 
 {
   "env": {
-    "ANTHROPIC_AUTH_TOKEN": "你的API Key",
-    "ANTHROPIC_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "ANTHROPIC_AUTH_TOKEN": "28e0183ae6195a42b0ff4fbc470f962c0981fbe6173f8ab9e5b598877940c915",
+    "ANTHROPIC_BASE_URL": "https://unitoken-api.suixingpay.com/v1",
     "ANTHROPIC_MODEL": "qwen3.6-plus"
   }
 }
