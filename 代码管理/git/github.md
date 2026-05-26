@@ -1,3 +1,4 @@
+#github:2026wkpass
 github:
 **项目**
 	obsidian-vault:git@github.com:ZWKAI/obsidian-vault.git
