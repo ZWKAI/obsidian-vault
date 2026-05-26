@@ -54,7 +54,7 @@ ClawManager 是一个 **Kubernetes 原生的 AI Agent 实例管理控制平面**
     
 - Quick / Deep 两套扫描策略可配置
     
-
+![[ClawManager 技术评估报告-1779780131334.webp]]
 ### 2.5 资源管理
 
 - **通道**：支持 Telegram、Discord、Slack、飞书/Lark、钉钉等 13+ 消息平台的接入模板
