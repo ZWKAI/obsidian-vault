@@ -44,4 +44,5 @@ k3s crictl pull ghcr.io/yuan-lab-llm/agentsruntime/openclaw:v2026.5.27
 #k3s拉取镜像**若仍用 :latest 且怀疑是旧缓存，可先删本地镜像再 pull**
 k3s crictl rmi ghcr.io/yuan-lab-llm/agentsruntime/openclaw:latest
 k3s crictl pull ghcr.io/yuan-lab-llm/agentsruntime/openclaw:latest
-
+带进度条：
+k3s ctr -n k8s.io images pull ghcr.io/yuan-lab-llm/agentsruntime/openclaw:latest
