@@ -35,3 +35,13 @@ k3s kubectl logs -n clawmanager-system deploy/clawmanager-app --tail=200
 ```
 
 你执行过程中把报错贴我，我可以按报错给你继续下一步处理。
+
+
+### 更新镜像
+**拉取新镜像（示例）**
+k3s crictl pull ghcr.io/yuan-lab-llm/agentsruntime/openclaw:v2026.5.27
+
+**若仍用 :latest 且怀疑是旧缓存，可先删本地镜像再 pull**
+k3s crictl rmi ghcr.io/yuan-lab-llm/agentsruntime/openclaw:latest
+k3s crictl pull ghcr.io/yuan-lab-llm/agentsruntime/openclaw:latest
+
