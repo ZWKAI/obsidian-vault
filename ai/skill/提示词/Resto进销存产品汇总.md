@@ -10,7 +10,7 @@
 
 
 二、业务要求
-	1. 忽略源表前四个sheet(HQ Finance Records、Finance Report、SG Procurement List、Dynamic Stock List),复制之后的sheet数据
+	1. 忽略源表前四个sheet(HQ Finance Records、Finance Report、SG Procurement List、Dynamic Stock List),复制之后的sheet数据到摸版sheet
 	2. 映射关系
 	采购发票号：Invoice
 	厂商名称：sheet名称
