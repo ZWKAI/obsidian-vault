@@ -18,6 +18,7 @@
 	入库时间：Stock-In Date
 	库存地点：Stock By
 	型号名称：Name
+	小计：Invoice相同的数量
 	
 	销售发票号：Invoice No
 	客户名称：Merchant Outlet
