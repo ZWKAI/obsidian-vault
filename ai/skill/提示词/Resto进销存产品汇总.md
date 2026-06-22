@@ -18,11 +18,11 @@
 	入库时间：Stock-In Date
 	库存地点：Stock By
 	型号名称：Name
-	小计：Invoice相同的数量
+	小计：同行Invoice值相同的数量汇总
 	
 	销售发票号：Invoice No
 	客户名称：Merchant Outlet
-	发货数量：固定值1
+	发货小计：同行Invoice值相同且Stock Out不为空的数量汇总
 	出库时间：Stock Out
 	备注：Remarks
 
