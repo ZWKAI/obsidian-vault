@@ -192,12 +192,12 @@ telnet 22.50.100.13 30XXX
 
 在 DBeaver 中新建 **MySQL** 连接：
 
-| 配置项 | 值 |
-|--------|-----|
-| Host | `22.50.100.13` |
-| Port | 步骤 2.2 中的 NodePort（如 `30306`） |
-| Database | `clawmanager` |
-| Username | `clawmanager` |
+| 配置项      | 值                             |
+| -------- | ----------------------------- |
+| Host     | `22.50.100.13`                |
+| Port     | 步骤 2.2 中的 NodePort（如 `30306`） |
+| Database | `clawmanager`                 |
+| Username | `clawmanager`                 |
 | Password | 阶段 1 设置的 `NEW_MYSQL_PASSWORD` |
 
 **Driver properties**（MySQL 8 常见问题）：
