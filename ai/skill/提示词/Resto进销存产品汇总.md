@@ -14,6 +14,7 @@
 	2. 映射关系
 	采购发票号：Invoice
 	厂商名称：sheet名称
+	序列号：Serial Number
 	入库数量：固定值1
 	入库时间：Stock-In Date
 	库存地点：Stock By
