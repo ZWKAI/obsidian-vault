@@ -143,7 +143,7 @@ kubectl logs -n clawmanager-system deploy/clawmanager-app --tail=20
 kubectl patch svc mysql -n clawmanager-system -p '{"spec":{"type":"NodePort"}}'
 ```
 
-### 步骤 2.2：查看分配的 NodePort
+### 步骤 2.2：查看分配的 NodePort - 30771
 
 ```bash
 kubectl get svc mysql -n clawmanager-system
@@ -167,7 +167,7 @@ mysql   NodePort   10.43.25.134   <none>        3306:30XXX/TCP   14d
 sudo firewall-cmd --list-all
 
 # 永久放行 NodePort（示例：30306）
-sudo firewall-cmd --permanent --add-port=30XXX/tcp
+sudo firewall-cmd --permanent --add-port=30771/tcp
 sudo firewall-cmd --reload
 
 # 确认
@@ -179,7 +179,7 @@ sudo firewall-cmd --list-ports
 在你**本地电脑**执行（替换实际 NodePort）：
 
 ```bash
-nc -zv 22.50.100.13 30XXX
+nc -zv 22.50.100.13 30771
 # 或
 telnet 22.50.100.13 30XXX
 ```
