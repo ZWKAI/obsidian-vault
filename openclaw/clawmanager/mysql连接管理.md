@@ -87,8 +87,10 @@ FLUSH PRIVILEGES;
 
 ```bash
 kubectl patch secret clawmanager-secrets -n clawmanager-system \
-  --type merge \
-  -p "{\"stringData\":{\"mysql-password\":\"${NEW_MYSQL_PASSWORD}\",\"mysql-root-password\":\"${NEW_MYSQL_ROOT_PASSWORD}\"}}"
+
+--type merge \
+
+-p '{"stringData":{"mysql-password":"caiwuClawManager_2026!","mysql-root-password":"caiwuClawManager_2026!"}}'
 ```
 
 验证 Secret 已更新（只显示 key 名，不显示明文）：
