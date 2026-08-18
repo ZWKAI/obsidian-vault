@@ -1,4 +1,4 @@
-# 开源项目
+ 开源项目
 ## 一、ui-ux-pro-max-skill
 git:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 
@@ -87,3 +87,28 @@ Impeccable 的 audit 会寻找系统性问题，并可以把发现映射到后�
 	Debit          Credit
 	1,234,567.00   —
 	—              823,456.00
+
+## 最后 最关键：不要让 Impeccable 推翻 UI/UX Pro Max
+这是很多人用两个 Skill 最容易犯的错误。
+比如：
+UI/UX Pro Max 说：
+	 财务系统应该高密度、低装饰。
+然后 Impeccable 说：
+	页面视觉太单调。
+
+**不要马上执行 `bolder`。**
+因为 Impeccable 是通用设计 Skill，而你的项目有自己的产品约束。
+
+你的优先级应该是：
+
+	Finance Product Requirements
+	   ↓
+	Finance Design System
+	   ↓
+	UI/UX Pro Max
+	   ↓
+	Impeccable
+而不是：
+	Impeccable
+	   ↓
+	想怎么改就怎么改
