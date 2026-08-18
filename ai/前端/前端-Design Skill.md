@@ -1,7 +1,12 @@
  开源项目
 ## 一、ui-ux-pro-max-skill
 git:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
+**安装**
+	npm install -g uipro-cli --registry=https://registry.npmmirror.com
 
+**你的项目目录并初始化**：
+	cd /你的项目文件夹
+	uipro init --ai cursor
 
 ## 二、impeccable
 git:https://github.com/pbakaus/impeccable
