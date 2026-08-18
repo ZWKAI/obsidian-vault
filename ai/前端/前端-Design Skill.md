@@ -10,7 +10,8 @@ git:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 
 ## 二、impeccable
 git:https://github.com/pbakaus/impeccable
-
+**安装**
+	npx impeccable install
 这个技能可以通过一个命令来激活：
 ```shell
 /impeccable <command> <target>
