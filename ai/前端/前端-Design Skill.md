@@ -7,6 +7,7 @@ git:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 **你的项目目录并初始化**：
 	cd /你的项目文件夹
 	uipro init --ai cursor
+	uipro init --ai codex
 
 ## 二、impeccable
 git:https://github.com/pbakaus/impeccable
