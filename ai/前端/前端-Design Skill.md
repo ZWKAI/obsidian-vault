@@ -7,6 +7,8 @@ git:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 git:https://github.com/pbakaus/impeccable
 
 # 流程
+	 **UI/UX Pro Max = 产品设计师 + Design System Architect**
+	 **Impeccable = Senior Design Reviewer + UI QA + Polish**
 ```
 需求
  ↓
