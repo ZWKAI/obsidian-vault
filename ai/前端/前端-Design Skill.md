@@ -6,6 +6,15 @@ git:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 ## 二、impeccable
 git:https://github.com/pbakaus/impeccable
 
+这个技能可以通过一个命令来激活：
+```shell
+/impeccable <command> <target>
+```
+开始每个新项目时，都应该这样开始：
+```shell
+/impeccable init
+```
+
 # 流程
 	 **UI/UX Pro Max = 产品设计师 + Design System Architect**
 	 **Impeccable = Senior Design Reviewer + UI QA + Polish**
