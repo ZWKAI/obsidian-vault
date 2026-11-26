@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#dfeeea"><meta name="description" content="云帆项目入门指南，含系统架构、八个业务模块、三条跨模块业务链和本机源码入口。"><title>云帆项目入门指南</title><style>:root{--bg:#ecf1f5;--ink:#192f3c;--body:#344854;--sub:#536a72;--sea:#126d68;--strong:#15594f;--line:rgba(47,83,93,.16);--thin:rgba(47,83,93,.095);--glass-transparency:65%;--glass:rgb(255 255 255 / calc(100% - var(--glass-transparency)));--rim:rgba(255,255,255,.91);--elevation:0 22px 65px -40px rgba(29,64,80,.35),0 3px 13px -8px rgba(32,59,72,.18);--serif:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;--sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;--mono:"SFMono-Regular",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:25px;scrollbar-color:#93b4b5 #e8f1f2}body{margin:0;color:var(--body);background:var(--bg);font:16px/1.83 var(--sans);-webkit-font-smoothing:antialiased}
+/* Soft bands sit behind the glass so they remain visible as the panels clear. */
+.atmosphere{
+  pointer-events:none;position:fixed;z-index:0;inset:0;
+  background:
+    radial-gradient(ellipse 65% 72% at 66% -8%,#a2dcd2 0%,transparent 75%),
+    radial-gradient(ellipse 56% 68% at 2% 22%,#a8cde4 0%,transparent 80%),
+    radial-gradient(ellipse 70% 73% at 102% 90%,#c6c6e9 0%,transparent 80%),
+    linear-gradient(118deg,#dae8f1 4%,#d5ede9 51%,#e8e6ef);
+}
+.atmosphere::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 115% 96% at 87% -28%,transparent 52%,#f7fffc80 54%,#f7fffc45 59%,transparent 63%),
+    radial-gradient(ellipse 105% 100% at -22% 105%,transparent 48%,#efffff63 50%,transparent 58%);
+}
+a{color:var(--sea);text-decoration-thickness:1px;text-underline-offset:.22em;text-decoration-color:#89afaa}a:hover{color:#104b47;text-decoration-color:currentColor}button{font:inherit;color:inherit;cursor:pointer}button,a{-webkit-tap-highlight-color:transparent}a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #157d8f;outline-offset:3px;border-radius:8px}::selection{color:#103f43;background:#c3e5e0}.skip{position:fixed;top:-100px;left:12px;z-index:20;background:white;padding:6px 12px}.skip:focus{top:10px}
+.shell{position:relative;z-index:1;max-width:1320px;width:calc(100% - clamp(40px,7vw,116px));margin:38px auto 66px;display:grid;grid-template-columns:218px minmax(0,1fr);gap:26px;align-items:start}.glass{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(130%);
+  backdrop-filter:blur(18px) saturate(130%);
+  box-shadow:inset 0 1px 0 #fff,inset 1px 0 0 #ffffff66,0 0 0 1px var(--rim),var(--elevation);
+}
+aside{position:sticky;top:24px;border-radius:23px;padding:23px 13px 14px;color:var(--ink);z-index:5}.brand-row{display:flex;align-items:center;gap:12px;padding:0 9px 19px;border-bottom:1px solid var(--line)}.brand-icon{position:relative;flex:none;width:37px;height:37px;border-radius:13px;background:linear-gradient(145deg,#307f7c,#144a52);box-shadow:0 3px 7px #15594f22,inset 0 1px 1px #ffffff75}.brand-icon:before,.brand-icon:after{content:"";position:absolute;bottom:10px;height:19px;clip-path:polygon(100% 0,100% 100%,0 100%);background:#edfffb}.brand-icon:before{left:8px;width:12px;transform:skewX(-7deg)}.brand-icon:after{left:22px;width:8px;height:14px;clip-path:polygon(0 0,100% 100%,0 100%);background:#abdfd7}
+.brand{display:flex;flex-direction:column;line-height:1.32}.brand strong{font-family:var(--serif);font-weight:800;font-size:22px;letter-spacing:.035em}.brand small{color:var(--sub);font-size:11.5px;letter-spacing:.035em}
+.guide-nav{display:grid;gap:4px;padding:18px 0}.guide-nav a{display:flex;align-items:center;gap:12px;border-radius:12px;padding:10px 13px;text-decoration:none;color:#375260;line-height:1.4;font-size:14px;transition:background .15s,color .15s}.guide-nav a:hover{background:#fff9}.guide-nav a[aria-current="location"]{background:#cde5dfb3;color:#15594f;font-weight:650}.icon{display:inline-block;width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}.guide-nav a .icon{opacity:.85}
+.sidebar-foot{padding:14px 10px 2px;border-top:1px solid var(--line)}.progress-meta{display:flex;justify-content:space-between;font-size:11.5px;color:#526b71}.progress-meta output{font:11px/1.8 var(--mono)}.meter{height:3px;margin:7px 0 14px;background:#274b5418;border-radius:5px;overflow:hidden}.meter span{display:block;background:#227e74;width:100%;height:100%;transform:scaleX(0);transform-origin:left}.action{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px solid var(--line);border-radius:20px;padding:5px 10px;font-size:12px;background:#ffffff77;color:#36565c}.action:hover{background:#ffffffdf}.action .icon{width:15px;height:15px}.menu-toggle{display:none}
+main{min-width:0;border-radius:30px;overflow:clip}.hero{position:relative;isolation:isolate;overflow:hidden;padding:54px clamp(24px,4vw,66px) 37px;background:radial-gradient(ellipse at 100% 55%,#cae5e6a8,transparent 61%),linear-gradient(120deg,#ffffff44,#f6fffa22 55%,#c4d9ed75);border-bottom:1px solid var(--line)}.hero-copy{position:relative;z-index:1;max-width:66%}.hero h1,h2,h3{font-family:var(--serif);color:var(--ink);font-weight:700;text-wrap:balance}.hero h1{font-size:clamp(37px,3.45vw,55px);margin:0 0 17px;line-height:1.24;letter-spacing:-.028em}.hero p{font-size:clamp(15px,1.15vw,18px);max-width:37em;line-height:1.9;margin:0;text-wrap:pretty}.version{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:22px;font:12px/1.5 var(--mono);color:#45656a}.version span{display:inline-flex;align-items:center;gap:6px}.version .icon{width:14px;height:14px}.version span+span{padding-left:13px;border-left:1px solid #47666b38}
+.sail-art{pointer-events:none;position:absolute;right:0;bottom:0;width:33%;height:100%;overflow:hidden;z-index:0}.origin{position:absolute;left:45%;top:53%;width:0;height:0}.fold{position:absolute;display:block}.fold.main-sail{width:100px;height:123px;left:-81px;top:-94px;clip-path:polygon(99% 0%,77% 91%,0% 100%);background:linear-gradient(124deg,#ebffff 6%,#c0e8e4 32%,#5faeae 64%,#348688 100%)}.fold.inner{width:78px;height:112px;left:-80px;top:-83px;clip-path:polygon(99% 0%,30% 95%,0 100%);background:linear-gradient(131deg,#f2fffd,#c1e6e2 67%,#92c9c4)}.fold.jib{width:67px;height:100px;left:5px;top:-77px;clip-path:polygon(28% 0%,100% 84%,0% 100%);background:linear-gradient(128deg,#fafffe 7%,#d3ebe5 42%,#80b5b9 100%)}.fold.keel{width:166px;height:30px;left:-90px;top:28px;clip-path:polygon(0 24%,100% 0%,69% 79%,25% 100%);background:linear-gradient(153deg,#8ec9c3,#448f93 48%,#276775 85%)}.water{display:block;position:absolute;left:-118px;top:44px;width:222px;height:31px;border:1px solid #538f9a3d;border-radius:50%;transform:rotate(-5deg)}.water.w2{width:300px;height:52px;left:-155px;top:37px;border-color:#6c9da428}.water.w3{width:412px;height:83px;left:-208px;top:28px;border-color:#719ba424}
+.chapter{padding:38px clamp(24px,4vw,66px) 42px;border-bottom:1px solid var(--line);scroll-margin-top:12px;overflow-wrap:anywhere}.chapter:last-child{border-bottom:0}.chapter h2{margin:0 0 18px;font-size:clamp(26px,2.2vw,35px);line-height:1.36;letter-spacing:-.023em}.chapter h2:after{content:"";display:block;margin-top:13px;width:35px;height:3px;background:#368f82;border-radius:3px}.chapter h3{margin:27px 0 8px;line-height:1.48;font-size:21px}.chapter p{margin:9px 0}.section-intro{color:#4b626a}.chapter p,.chapter li{text-wrap:pretty}.chapter strong,.chapter b{color:#223e47}code{font: .87em/1.5 var(--mono);background:#294e5710;border-radius:5px;padding:.12em .28em;color:#2b5157;overflow-wrap:anywhere}.chapter ol{padding-left:1.4em}.chapter li{padding:.25em 0}.chapter li::marker{color:var(--sea)}
+.journey{margin-top:22px}.stage-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}.stage-nav a{position:relative;min-width:0;display:block;border:1px solid #729c9d45;border-radius:15px;text-decoration:none;color:var(--body);background:rgb(255 255 255 / max(17%, calc(100% - var(--glass-transparency))));padding:12px 14px;line-height:1.35;transition:background .18s,box-shadow .18s}.stage-nav a:after{content:"";pointer-events:none;position:absolute;width:17px;right:-21px;top:50%;height:1px;background:#74a19f}.stage-nav a:before{content:"";position:absolute;top:calc(50% - 2px);right:-21px;width:4px;height:4px;transform:rotate(45deg);border:solid #74a19f;border-width:1px 1px 0 0}.stage-nav a:last-child:before,.stage-nav a:last-child:after{display:none}.stage-nav a:hover{background:#fff}.stage-nav a[aria-selected=true]{background:rgb(215 239 228 / max(58%, calc(100% - var(--glass-transparency))));box-shadow:inset 0 0 0 1px #438c7d;border-color:#438c7d}.stage-nav span{display:block;font:10.5px/1.45 var(--mono);color:#436964}.stage-nav strong{display:block;font-size:17px;font-weight:650;margin-top:3px}.stage-detail{margin-top:14px;padding:16px 20px;border-radius:14px;background:linear-gradient(115deg,rgb(224 245 235 / max(33%, calc(100% - var(--glass-transparency)))),rgb(238 244 251 / max(20%, calc(100% - var(--glass-transparency)))));border:1px solid #769e9633}.stage-detail h3{font-size:17px;font-family:var(--sans);color:#234d48;margin:0 0 4px}.stage-detail p{margin:0;color:#3a5459;font-size:15px}.stage-detail[hidden]{display:none}.sources,.source-links{font-size:13.5px;color:#58716d}.sources{display:flex;flex-wrap:wrap;gap:4px 13px;align-items:baseline}.chapter .sources,.chapter .source-links{margin-top:15px}
+.stack-flow{margin:20px 0;padding:20px;border-radius:18px;background:#dceceaa1;border:1px solid var(--thin)}.stack-row{display:flex;justify-content:center;gap:12px}.stack-node{position:relative;flex:1;min-width:0;background:rgb(255 255 255 / max(33%, calc(100% - var(--glass-transparency))));border:1px solid #80a2a14d;text-align:center;border-radius:12px;padding:12px 8px;line-height:1.5}.stack-node b,.stack-node small{display:block}.stack-node b{font-size:16px}.stack-node small{font-size:12px;color:#536b70}.stack-node.stack-server{background:#225e65;border-color:transparent}.stack-server b,.stack-server small{color:white}.stack-join{text-align:center;color:#466960;font-size:12.5px;margin:7px 0}
+.table-wrap{margin:20px 0 24px;border-radius:16px;border:1px solid var(--line);overflow-x:auto;background:#ffffff68}.table-wrap table{width:100%;border-collapse:collapse;line-height:1.65;font-size:14.5px;text-align:left}th,td{padding:12px 14px;vertical-align:top;text-align:left;border-bottom:1px solid var(--thin)}thead th{font-weight:650;background:#dcece9;color:#284e50}tbody th{min-width:94px;white-space:nowrap}tbody th small{font-size:12px;color:var(--sub);font-weight:400}tbody tr:last-child>*{border-bottom:0}tbody tr:nth-child(even){background:#edf4f570}tbody tr:hover{background:#e9f3ef}.flow-case{padding:3px 0 17px}.flow-case+.flow-case{border-top:1px solid var(--line)}.flow-case h3{margin:14px 0 10px}.read-list{list-style:none;padding:0!important;margin:20px 0 0;counter-reset:read}.read-list li{position:relative;counter-increment:read;padding:14px 0 14px 47px;border-top:1px solid var(--line)}.read-list li:before{content:counter(read);position:absolute;left:0;top:16px;width:28px;height:28px;border:1px solid #80afa5;border-radius:50%;display:grid;place-items:center;color:#215d53;font:14px/1 var(--mono)}.read-list b{display:block;font-weight:650}.read-list p{margin:2px 0 0;font-size:15px}[hidden]{display:none}
+@media(min-width:981px){aside{max-height:calc(100dvh - 48px);overflow-y:auto}}
+@media(max-width:1130px) and (min-width:981px){.shell{width:calc(100% - 42px);gap:18px;grid-template-columns:190px minmax(0,1fr)}.hero,.chapter{padding-left:31px;padding-right:31px}.stage-nav{gap:17px}.stage-nav a:after{right:-17px;width:13px}.stage-nav a:before{right:-17px}}
+@media(max-width:980px){html{scroll-padding-top:82px}.shell{width:min(850px,calc(100% - 34px));margin:15px auto 32px;display:flex;flex-direction:column;gap:14px}.shell>main,.shell>aside{width:100%}aside{top:9px;padding:9px 14px;border-radius:19px;background:rgb(248 253 252 / max(54%, calc(100% - var(--glass-transparency))))}.brand-row{padding:0 3px;border:0}.brand-icon{width:31px;height:31px;border-radius:10px}.brand-icon:before,.brand-icon:after{transform:scale(.85);transform-origin:bottom left;bottom:8px}.brand-icon:after{left:19px}.brand{flex:1;display:block}.brand strong{font-size:18px}.brand small{margin-left:10px}.sidebar-foot{display:none}.guide-nav{display:flex;flex-wrap:wrap;gap:4px;padding:10px 0 0}.guide-nav a{font-size:13px;padding:8px}.guide-nav .icon{width:15px;height:15px}.enhanced .menu-toggle{display:flex;align-items:center;justify-content:center;gap:6px;padding:5px 10px;border:0;color:#27594f;background:#dcece5;border-radius:14px;font-size:13px}.enhanced aside:not([data-open=true]) .guide-nav{display:none}.hero{padding-top:39px}.chapter{scroll-margin-top:7px}main{border-radius:23px}}
+@media(max-width:640px){body{font-size:15px;line-height:1.8}.shell{width:calc(100% - 22px);margin-top:10px;gap:10px}.hero{padding:28px 21px 22px}.hero-copy{max-width:100%}.hero h1{font-size:clamp(30px,7.6vw,40px);padding-right:50px;margin-bottom:13px}.hero p{font-size:15px;position:relative}.sail-art{width:81px;height:77px;right:8px;top:2px;opacity:.75}.origin{transform:scale(.38);top:53%;left:47%}.version{gap:8px;margin-top:15px;font-size:10.5px}.version span+span{padding-left:8px}.chapter{padding:28px 20px 31px}.chapter h2{font-size:25px;margin-bottom:13px}.chapter h2:after{height:2px;width:30px;margin-top:9px}.chapter h3{font-size:19px}.journey{margin-top:15px}.stage-nav{gap:9px}.stage-nav a{padding:10px 3px;text-align:center;border-radius:10px}.stage-nav a:after{width:5px;right:-8px}.stage-nav a:before{width:3px;height:3px;right:-8px}.stage-nav span{font-size:9px}.stage-nav strong{font-size:13px}.stage-detail{padding:13px 14px}.stage-detail h3{font-size:15px}.stage-detail p{font-size:14px}.stack-flow{padding:11px}.stack-row{gap:5px}.stack-node{padding:9px 3px;border-radius:9px}.stack-node b{font-size:13px}.stack-node small{font-size:11px}.stack-join{font-size:11px;margin:6px 0}.table-wrap{border-radius:12px}.table-wrap table{font-size:13px}.table-wrap thead th,.table-wrap td,.table-wrap tbody th{padding:9px 7px}.table-wrap tbody th{min-width:0;white-space:normal}.table-wrap th small{font-size:10.5px}#modules thead th:first-child{width:22%}#modules thead th:last-child{width:28%}#organization thead th:first-child{width:21%}.read-list li{padding-left:36px}.read-list li:before{width:23px;height:23px}.chapter .source-links{font-size:13px}.guide-nav{display:grid;grid-template-columns:1fr 1fr;padding-bottom:5px}.chapter ol:not(.read-list){padding-left:1.2em}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+/* Native range preserves touch, keyboard, and screen-reader controls. */
+.glass-setting{display:none}
+@media screen{
+  .enhanced .glass-setting{display:block;margin:0 8px;padding:10px 2px 7px;border-top:1px solid var(--line)}
+  .glass-setting label{display:flex;align-items:center;justify-content:space-between;font:13px/1.5 var(--sans);color:#294e52;cursor:pointer}
+  .glass-setting output{font:12px/1.5 var(--mono);color:#265e58}
+  .glass-setting input{display:block;width:100%;height:28px;margin:1px 0 0;accent-color:#216d64;cursor:pointer}
+  .glass-setting input:focus-visible{outline:2px solid #116c77;outline-offset:2px;border-radius:5px}
+}
+@media screen and (max-width:980px){
+  .enhanced aside:not([data-open=true]) .glass-setting{display:none}
+  .enhanced .glass-setting{padding:8px 4px 4px}
+  .glass-setting input{height:32px}
+  aside[data-open=true]{max-height:calc(100dvh - 18px);overflow-y:auto}
+}
+@media(prefers-reduced-transparency:reduce){:root{--glass-transparency:0%}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .rail.glass{background:rgb(249 253 252 / max(91%, calc(100% - var(--glass-transparency))))}
+}
+@media print{@page{size:A4;margin:16mm}*{color:#153238!important;box-shadow:none!important}html,body{background:#fff;font-size:10pt;line-height:1.55}.atmosphere,.rail,.sail-art,.stage-nav,.skip{display:none!important}.shell{display:block;width:100%;margin:0}main.glass{background:none;border-radius:0;overflow:visible;backdrop-filter:none}.hero,.chapter{background:none;border:none;padding:8px 0 11px}.hero-copy{max-width:100%}.hero h1{font-size:26pt}.chapter h2{font-size:18pt}.chapter h3{font-size:13pt}.stage-detail[hidden]{display:block!important}.stage-detail,.stack-flow,.read-list li{break-inside:avoid}.chapter h2,.chapter h3{break-after:avoid}.table-wrap{overflow:visible}.table-wrap table{font-size:9pt}tr{break-inside:avoid}.stage-detail{padding:6px 9px;margin:5px 0}.stack-server{background:#e7eeee!important}code{background:none}.source-links,.sources{font-size:8.5pt}}
+
+.manual-entry{display:inline-block;margin-top:13px;color:#15594f;font-size:14px;font-weight:600;text-underline-offset:.23em}@media print{.manual-entry{display:none}}
+/* Use the handbook's reading palette for sections; preserve named business colors in the order example. */
+@media screen {
+  :root {
+    --guide-ink:#213b40;--guide-copy:#34494c;--guide-muted:#4d6368;
+    --guide-pine:#295e50;--guide-blue:#355c7b;--guide-plum:#704f73;--guide-ochre:#78521e;
+    --guide-pine-wash:#e8f1e9;--guide-blue-wash:#e8eff6;--guide-plum-wash:#f2eaf2;
+    --section-ink:var(--guide-pine);--section-wash:var(--guide-pine-wash);
+  }
+  .atmosphere {
+    background:radial-gradient(ellipse 65% 70% at 82% -7%,#bddbcf,transparent 75%),
+      radial-gradient(ellipse 58% 76% at 0% 12%,#b4d0e2,transparent 79%),
+      radial-gradient(ellipse 66% 80% at 99% 99%,#d3c7de,transparent 79%),
+      linear-gradient(122deg,#dce6ed 6%,#f2ecdf 55%,#e4e4ec);
+  }
+  body {color:var(--guide-copy)}
+  #architecture,#reading,.guide-nav :is([href="#architecture"],[href="#reading"]) {
+    --section-ink:var(--guide-blue);--section-wash:var(--guide-blue-wash)
+  }
+  #modules,#organization,.guide-nav :is([href="#modules"],[href="#organization"]) {
+    --section-ink:var(--guide-plum);--section-wash:var(--guide-plum-wash)
+  }
+  .guide-nav a .icon {color:var(--section-ink)}
+  .guide-nav a[aria-current=location] {color:var(--section-ink);font-weight:680;background:color-mix(in srgb,var(--section-ink) 12%,transparent)}
+  .guide-nav a:focus-visible,.chapter a:focus-visible {outline-color:var(--section-ink)}
+  .hero {
+    background:radial-gradient(ellipse at 98% 50%,rgb(175 213 210 / 34%),transparent 54%),
+      linear-gradient(118deg,rgb(255 252 242 / 36%),rgb(255 255 255 / 8%) 64%,rgb(208 224 239 / 22%));
+  }
+  .hero .hero-lead {font-size:clamp(17px,1.55vw,22px);line-height:1.56;font-weight:600;color:var(--guide-ink);max-width:30em}
+  .hero .hero-detail {max-width:36em;font-size:15px;line-height:1.82;color:var(--guide-muted);margin:9px 0 0}
+  .guide-related {display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;margin-top:14px}
+  .guide-related .manual-entry {margin:0}
+  .guide-related .dictionary-entry {color:var(--guide-blue)}
+  .chapter>h2 {color:var(--section-ink);line-height:1.35;margin-bottom:15px}
+  .chapter>h2:after {width:2.15em;height:2px;background:var(--section-ink);margin-top:12px}
+  .chapter h3 {color:var(--guide-ink);line-height:1.5}
+  .chapter>p,.flow-case>p,.read-list p,#architecture ol li,.stage-detail p {
+    max-inline-size:43em;line-height:1.8;color:var(--guide-copy);text-wrap:pretty;
+  }
+  .chapter>p,.flow-case>p,.read-list p,.stage-detail p {font-size:15.5px}
+  .chapter>p+p,.flow-case>p+p {margin-top:.8em}
+  .chapter>.section-intro {font-size:clamp(15px,1.18vw,17px);line-height:1.8}
+  .chapter .reader-key {font-weight:680;color:var(--section-ink)}
+  .chapter .source-links,.source-tail {font-size:13px;line-height:1.75;color:var(--guide-muted)}
+  .source-tail {display:block;margin-top:4px}
+  .source-tail a,.source-links a,.sources a {color:#395d6a}
+  .chapter .journey-heading {margin-top:20px;margin-bottom:3px;font-family:var(--sans);font-size:17px;font-weight:660}
+  .chapter .journey-tip {font-size:14px;color:var(--guide-muted);margin:0}
+  .journey {margin-top:12px}
+  .stage-nav a[aria-selected=true] {border-color:var(--guide-pine);background:rgb(215 237 222 / max(55%,calc(100% - var(--glass-transparency))));box-shadow:inset 0 -2px 0 var(--guide-pine)}
+  .stage-detail {padding:16px 19px}.stage-detail h3 {color:var(--guide-pine);margin-bottom:4px}
+  .order-path {font-weight:650;text-decoration-color:currentColor}
+  .order-path[data-lane=A] {color:var(--guide-pine)}.order-path[data-lane=B] {color:var(--guide-blue)}
+  .order-path[data-lane=C] {color:var(--guide-ochre)}.order-path[data-lane=D] {color:var(--guide-plum)}
+  #architecture .stack-flow {
+    margin:19px 0 22px;padding:18px clamp(12px,1.6vw,23px);
+    background:rgb(227 237 245 / max(33%,calc(100% - var(--glass-transparency,65%))));border:1px solid rgb(54 90 118 / 25%);border-radius:15px;
+  }
+  .stack-row {display:grid;grid-template-columns:5.2em repeat(var(--node-count),minmax(0,1fr));align-items:stretch;gap:10px}
+  .stack-label {align-self:center;color:var(--guide-blue);font-weight:650;font-size:14px;line-height:1.4}
+  .stack-node {padding:10px 6px;border-color:rgb(75 111 139 / 28%);border-radius:10px;align-content:center}
+  .stack-node b {color:#2c4d64}.stack-node small {color:#425967;font-size:13px}
+  .stack-node.stack-server {border-color:#365773;background:#365773}
+  .stack-server b,.stack-server small {color:white}.stack-server b {font-family:var(--mono)}
+  .stack-join {margin:8px 0 8px calc(5.2em + 13px);text-align:left;color:#435d6b;font-size:13px;line-height:1.55}
+  #architecture ol li {margin-block:.4em}
+  #architecture li::marker {color:var(--guide-blue);font-weight:650}
+  #modules .table-wrap {margin-top:16px;border-color:rgb(112 79 115 / 25%);border-radius:15px}
+  #modules th,#modules td {padding:10px 13px}
+  #modules thead th {background:#ece5ef;color:#513c55}
+  #modules thead th:first-child {width:19%}#modules thead th:last-child {width:30%}
+  #modules tbody th>a {font:650 15px/1.5 var(--mono);color:#4f3d54}
+  #modules tbody th small {color:var(--guide-muted)}
+  #modules tbody tr[id] {scroll-margin-block-start:1em}
+  #modules tbody tr:target {background:#eee0ee;box-shadow:inset 0 1px 0 #9a7f9d,inset 0 -1px 0 #9a7f9d}
+  #modules .dep-list {line-height:1.95;word-break:normal}
+  .dep-link {display:inline-block;white-space:nowrap;color:#634768;font:600 13px/1.7 var(--mono);text-decoration-color:#ac92af;text-underline-offset:3px}
+  .dep-link:hover {color:#492f4f;text-decoration-color:currentColor}
+  .dep-sep {color:#786a7a}
+  .chapter .relation-note {margin-top:20px}
+  .flow-case {padding-block:8px 18px}
+  .flow-case h3 {font-family:var(--sans);font-size:clamp(17px,1.5vw,21px);font-weight:670;color:var(--section-ink)}
+  .flow-case[data-domain=settlement] {--section-ink:var(--guide-ochre)}
+  #organization .table-wrap th,#organization .table-wrap td {line-height:1.7}
+  #reading .read-list b {color:var(--guide-ink)}
+  #reading .read-list li:before {color:var(--guide-blue);border-color:#87a1b4}
+  @media (max-width:680px) {
+    .hero .hero-detail {font-size:14.5px}
+    .hero .hero-lead {max-width:23em}
+    .chapter>h2:after {margin-top:9px}
+    .chapter>p,.chapter>.section-intro,.flow-case>p,.read-list p,.stage-detail p,#architecture ol li {font-size:15px;line-height:1.78}
+    .chapter .source-links,.chapter .sources,.source-tail {font-size:13px}
+    .guide-related {gap:4px 12px}
+    .guide-related .manual-entry {font-size:13px}
+    #architecture .stack-flow {padding:11px 9px}
+    .stack-row {grid-template-columns:repeat(var(--node-count),minmax(0,1fr));gap:4px}
+    .stack-label {grid-column:1/-1;margin-bottom:2px;text-align:left;font-size:13px}
+    .stack-node {padding:7px 3px}.stack-node b {font-size:13.5px}.stack-node small {font-size:11.5px;line-height:1.5;overflow-wrap:anywhere}
+    .stack-join {margin:7px 0 10px;font-size:12px;line-height:1.55}
+    #modules .table-wrap table,#modules .table-wrap tbody {display:block}
+    #modules thead {position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+    #modules tbody tr {display:grid;grid-template-columns:minmax(0,1fr);padding:12px;gap:5px;border-bottom:1px solid rgb(100 75 104 / 17%)}
+    #modules tbody tr:last-child {border:0}
+    #modules tbody th,#modules tbody td {display:block;padding:0;border:0;min-width:0;font-size:14px}
+    #modules tbody th br {display:none}#modules tbody th small {margin-left:8px;font-size:12px}
+    #modules .dep-list {line-height:1.7;font-size:13px}
+    #modules .dep-list:before {content:attr(data-label);margin-right:.55em;font:600 12px/1.6 var(--sans);color:#65516a}
+    #modules tbody tr[id] {scroll-margin-block-start:12px}
+    .chapter .journey-heading {margin-top:16px}
+    .chapter .journey-tip {font-size:13.5px}
+  }
+}
+@media print {
+  .guide-related {display:none}
+  .stack-row {display:flex;align-items:center}
+  .stack-label {width:5em;font-size:9pt;font-weight:650}
+  .source-tail {display:block;font-size:8.5pt}
+  .dep-link {text-decoration:none}
+}
+/* Direct module dependencies, shown in reading order along a shared axis. */
+.dep-overview {
+  --map-ink:#523a56;--map-muted:#5a4c5d;--map-surface:#f4eff4;
+  margin:20px 0 26px;border:1px solid #9a849d66;border-radius:15px;
+  background:rgb(250 247 250 / max(45%,calc(100% - var(--glass-transparency,65%))));
+  container-type:inline-size;color:var(--map-ink);overflow:hidden;
+}
+.dep-overview figcaption {display:flex;align-items:flex-start;justify-content:space-between;gap:12px 24px;padding:20px 21px 0}
+#modules .dep-overview h3 {margin:0 0 5px;font:650 19px/1.45 var(--sans);color:var(--guide-plum,#704f73)}
+.dep-overview figcaption p,.dep-overview .dep-map-foot {font-size:14px;line-height:1.7;margin:0;color:var(--map-muted)}
+.dep-overview figcaption strong {color:var(--map-ink);font-weight:650}
+.dep-overview figcaption code {white-space:nowrap}
+.dep-lens {
+  display:grid;flex:0 0 205px;min-width:0;gap:5px;
+  color:var(--map-muted);font:550 12px/1.5 var(--sans);
+}
+.dep-lens[hidden],.dep-lens [hidden],.dep-options[hidden] {display:none}
+.dep-lens label {width:fit-content;cursor:pointer}
+.dep-trigger,.dep-lens select {
+  box-sizing:border-box;width:100%;min-width:0;min-height:44px;
+  text-align:left;font:580 14px/1.45 var(--sans);color:#503952;
+  border:1px solid #a78fa8;border-radius:12px;
+  background:linear-gradient(145deg,rgb(255 255 255 / 87%),rgb(242 232 244 / 79%));
+  box-shadow:inset 0 1px 0 #fffc,0 2px 5px rgb(54 39 58 / 6%);cursor:pointer;
+}
+.dep-trigger {display:flex;align-items:center;gap:9px;padding:7px 12px}
+.dep-trigger:hover,.dep-trigger[aria-expanded=true] {border-color:#815e85;background-color:#f1e6f1}
+.dep-trigger:focus-visible,.dep-lens select:focus-visible {outline:2px solid #765178;outline-offset:3px}
+.dep-trigger-value {min-width:0;flex:1;display:flex;align-items:baseline;gap:7px;white-space:nowrap}
+.dep-trigger-role {font-weight:500;font-size:12.5px;color:#635267;overflow:hidden;text-overflow:ellipsis}
+.dep-swatch {display:grid;place-items:center;width:17px;height:18px;flex:none;color:#79567d}
+.dep-swatch svg {width:17px;height:17px;stroke:currentColor;stroke-width:1.55;fill:none}
+.dep-swatch[data-module]:before {
+  content:"";box-sizing:border-box;width:10px;height:10px;border:2.5px solid var(--route);
+  border-radius:50%;background:#fff9;
+}
+.dep-chevron,.dep-check {width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dep-chevron {margin-left:auto;color:#735978}
+.dep-trigger[aria-expanded=true] .dep-chevron {transform:rotate(180deg)}
+.dep-code {font:650 14px/1.35 var(--mono);color:#503952}
+.dep-options {
+  position:fixed;z-index:40;box-sizing:border-box;margin:0;padding:5px;
+  overflow:auto;overscroll-behavior:contain;list-style:none;
+  border:1px solid #ad97ae;border-radius:15px;
+  background:rgb(251 247 252 / max(92%,calc(100% - var(--glass-transparency,65%))));
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 10px 28px rgb(48 36 53 / 16%),0 2px 6px rgb(48 36 53 / 7%);
+  scrollbar-width:thin;scrollbar-color:#baa8bc transparent;
+  font:500 14px/1.45 var(--sans);color:#503952;
+}
+.dep-option {
+  position:relative;box-sizing:border-box;display:grid;align-items:center;
+  grid-template-columns:18px 7.8ch minmax(0,1fr) 16px;gap:8px;
+  min-height:38px;margin:0;padding:6px 10px;border-radius:8px;cursor:pointer;
+}
+.dep-option:first-child {margin-bottom:7px}
+.dep-option:first-child:after {content:"";position:absolute;inset:auto 6px -4px;height:1px;background:#d7cbd8}
+.dep-option .dep-all-name {grid-column:2/4;font-weight:620}
+.dep-option-role {color:#665669;font-size:13px;white-space:nowrap}
+.dep-option[aria-selected=true] {background:#eee3ef}
+.dep-option[data-active] {background:#e8dfea;box-shadow:inset 0 0 0 1px #ab92ae}
+.dep-check {grid-column:4;visibility:hidden;color:#6a476f}
+.dep-option[aria-selected=true] .dep-check {visibility:visible}
+@media (pointer:coarse),(max-width:640px) {.dep-option {min-height:44px}}
+@media (prefers-reduced-motion:no-preference) {
+  .dep-options:not([hidden]) {animation:dep-list-appear .12s ease-out}
+  .dep-chevron {transition:transform .15s ease-out}
+  @keyframes dep-list-appear {from {opacity:.45} to {opacity:1}}
+}
+@media (prefers-reduced-transparency:reduce) {.dep-options {background:#fbf7fc;backdrop-filter:none;-webkit-backdrop-filter:none}}
+@media (forced-colors:active) {
+  .dep-option[data-active] {outline:1px solid Highlight;outline-offset:-2px}
+  .dep-option[aria-selected=true] .dep-check {color:Highlight}
+  .dep-swatch[data-module]:before {border-color:CanvasText}
+}
+.dep-scheme {display:block;width:100%;height:auto;margin:10px auto;overflow:visible}
+.dep-tall {display:none}
+.dep-module {cursor:pointer;text-decoration:none;outline:none}
+.dep-module rect {fill:#fbf8fb;stroke:var(--route);stroke-width:1.5}
+.dep-module text {text-anchor:middle;pointer-events:none}
+.dep-module-code {fill:#442f48;font:650 18px var(--mono)}
+.dep-module-role {fill:#554b56;font:500 14px var(--sans)}
+.dep-module:hover rect,.dep-module:focus-visible rect,.dep-module.is-origin rect {stroke:#503454;stroke-width:3;fill:#f0e4f0}
+.dep-module:hover .dep-module-code,.dep-module:focus-visible .dep-module-code {text-decoration:underline}
+.dep-route,.dep-gap {fill:none;stroke-linejoin:round;stroke-linecap:round}
+.dep-route {stroke:var(--route);stroke-width:1.9}
+.dep-gap {stroke:var(--map-surface);stroke-width:5.2}
+.dep-tall .dep-route {stroke-width:1.65}
+.dep-tall .dep-module-code {font-size:16px}
+.dep-tall .dep-module-role {font-size:12px}
+.dep-overview .dep-map-foot {border-top:1px solid #a38ba533;padding:10px 21px 12px}
+.dep-map-status {color:var(--map-ink);font-weight:600}
+#modules .dep-table-heading {margin:0 0 4px}
+#modules .dep-table-help {margin:0;color:var(--guide-muted);font-size:14px}
+@media screen {
+  .dep-edge.is-muted {opacity:.10}
+  .dep-edge.is-origin .dep-route {stroke-width:2.8}
+}
+@media screen and (prefers-reduced-motion:no-preference) {
+  .dep-edge {transition:opacity .16s ease-out}
+}
+@container (max-width: 700px) {
+  .dep-wide {display:none}
+  .dep-tall {display:block;width:min(100%,310px);margin:7px auto}
+  .dep-overview figcaption {padding:14px 14px 0;flex-wrap:wrap;gap:8px}
+  .dep-lens {grid-template-columns:max-content minmax(0,1fr);width:min(100%,305px);flex:0 1 305px;align-items:center;gap:10px}
+  .dep-overview .dep-map-foot {padding:9px 14px 11px}
+}
+@container (max-width:355px) {
+  .dep-lens {grid-template-columns:minmax(0,1fr);flex:1 1 100%;gap:4px}
+}
+@media print {
+  .dep-options {display:none!important}
+  .dep-overview {break-inside:avoid;background:white;border-color:#9c929f;container-type:normal}
+  .dep-overview figcaption {padding:7px 12px 0}
+  .dep-lens,.dep-tall,.dep-map-status,.dep-map-hint {display:none}
+  .dep-wide {display:block;width:100%;margin:5px auto}
+  .dep-overview .dep-map-foot {display:none}
+  .dep-overview,.dep-scheme {print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
+
+/* Reader controls use the same surface and interaction states in all three documents. */
+@media screen {
+  :root {
+    --yf-action-ink:#533b58;
+    --yf-action-line:#a78fa8;
+    --yf-action-tint:#efe4f0;
+    --yf-key-ring:#285b89;
+    --yf-action-face:linear-gradient(145deg,rgb(255 255 255 / 89%),rgb(242 232 244 / 79%));
+    --yf-action-lift:inset 0 1px 0 #fffc,0 2px 5px rgb(54 39 58 / 6%);
+    --yf-magnifier:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23705a74' stroke-width='1.65' stroke-linecap='round'%3E%3Ccircle cx='8.3' cy='8.3' r='5.4'/%3E%3Cpath d='m12.4 12.4 4.3 4.3'/%3E%3C/svg%3E");
+  }
+  [data-yf-control],button.yf-picker,button.dep-trigger {
+    box-sizing:border-box;touch-action:manipulation;
+    -webkit-tap-highlight-color:rgb(103 74 109 / 14%);
+  }
+  :root :is([data-yf-control=button],[data-yf-control=primary],[data-yf-control=choice]) {
+    --yf-face:var(--yf-action-face);--yf-line:var(--yf-action-line);
+    --yf-text:var(--yf-action-ink);--yf-lift:var(--yf-action-lift);
+    border:1px solid var(--yf-line)!important;border-radius:12px!important;
+    background:var(--yf-face)!important;color:var(--yf-text)!important;box-shadow:var(--yf-lift)!important;
+    min-block-size:38px;padding:7px 12px;
+    font:590 14px/1.45 var(--sans,system-ui,sans-serif);text-align:center;
+    text-decoration:none;cursor:pointer;
+  }
+  :root [data-yf-control=primary] {
+    --yf-face:linear-gradient(145deg,#79567b,#654768);
+    --yf-line:#654768;--yf-text:#fff;--yf-lift:inset 0 1px 0 #ffffff32,0 2px 5px #3020351c;
+  }
+  :root [data-yf-control=surface] {cursor:pointer}
+  :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search) {
+    box-sizing:border-box;min-width:0;max-width:100%;min-block-size:44px;
+    padding:8px 12px 8px 39px!important;border:1px solid var(--yf-action-line)!important;
+    border-radius:12px!important;font:500 14px/1.5 var(--sans,system-ui,sans-serif);
+    color:#403544;background-color:#faf6fa!important;
+    background-image:var(--yf-magnifier),var(--yf-action-face)!important;
+    background-repeat:no-repeat!important;background-position:12px center,center!important;
+    background-size:17px 17px,100% 100%!important;box-shadow:inset 0 1px 0 #ffffffe0;
+    caret-color:#704f73;scroll-margin-block:5rem 1rem;
+  }
+  :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search)::placeholder {color:#736676;opacity:1;font-weight:400}
+  :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search):not(:placeholder-shown) {border-color:#856e88!important;color:#362939}
+  .yf-searchbar>svg {display:none}
+  .yf-searchbar {padding:3px 2px 7px}
+  :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search)::-webkit-search-cancel-button {cursor:pointer}
+  @media (hover:hover) and (pointer:fine) {
+    :root :is([data-yf-control=button],[data-yf-control=choice]):hover:where(:not(:disabled,[aria-disabled=true])) {
+      --yf-face:#f0e6f1;--yf-line:#7e6082;
+    }
+    :root [data-yf-control=primary]:hover:where(:not(:disabled,[aria-disabled=true])) {--yf-face:#593c60;--yf-line:#58395d}
+    :root [data-yf-control=surface]:hover:where(:not(:disabled,[aria-disabled=true])) {
+      background-color:var(--yf-control-wash,#f0e6f1);text-decoration:underline;text-underline-offset:.18em;
+    }
+    :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search):hover:where(:not(:disabled)) {border-color:#795c7d!important}
+  }
+  /* Selection remains legible when a pointer leaves a control or focus moves. */
+  :root :is([data-yf-control=button],[data-yf-control=choice],[data-yf-control=primary]):is([aria-selected=true],[aria-pressed=true],[aria-current]:not([aria-current=false]),[aria-expanded=true]) {
+    --yf-face:var(--yf-control-wash,#eae0ec);--yf-line:var(--yf-control-ink,#745578);
+    --yf-text:var(--yf-control-ink,#523958);--yf-lift:inset 0 -3px 0 var(--yf-control-ink,#745578);
+    font-weight:700;
+  }
+  :root [data-yf-control=surface]:is([aria-current]:not([aria-current=false]),[aria-selected=true],[aria-pressed=true],[aria-expanded=true]) {
+    font-weight:680;box-shadow:inset 0 -3px 0 var(--yf-control-ink,#745578);
+  }
+  :root :is([data-yf-control=button],[data-yf-control=primary],[data-yf-control=choice]):active:where(:not(:disabled,[aria-disabled=true])) {
+    --yf-lift:inset 0 2px 4px #38243a40,inset 0 -2px 0 currentColor;
+  }
+  :root :is([data-yf-control=button],[data-yf-control=primary],[data-yf-control=choice]):is(:disabled,[aria-disabled=true]) {
+    --yf-face:#f0edf0;--yf-text:#655c67;--yf-line:#c1b7c2;--yf-lift:none;
+    opacity:.76;cursor:default;
+  }
+  :root :is([data-yf-control],button.yf-picker,button.dep-trigger,.yf-searchbar input.yf-search):focus-visible {
+    outline:3px solid var(--yf-key-ring)!important;outline-offset:2px!important;
+  }
+  @media (pointer:coarse),(max-width:680px) {
+    :root :is([data-yf-control=button],[data-yf-control=primary],[data-yf-control=choice],[data-yf-control=surface]) {
+      min-block-size:44px!important;
+    }
+    :root :is([data-yf-control=button],[data-yf-control=primary],[data-yf-control=choice]) {min-inline-size:44px}
+    :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search) {font-size:16px!important}
+  }
+  @media (prefers-reduced-motion:no-preference) {
+    :root :is([data-yf-control=button],[data-yf-control=primary],[data-yf-control=choice],input[data-yf-control=search]) {
+      transition:border-color .12s ease-out,background-color .12s ease-out,box-shadow .12s ease-out;
+    }
+  }
+  @media (prefers-reduced-transparency:reduce) {
+    :root {--yf-action-face:linear-gradient(#fcf9fc,#f5eff6)}
+  }
+  @media (forced-colors:active) {
+    :root {--yf-key-ring:Highlight}
+    :root :is([data-yf-control=button],[data-yf-control=choice],[data-yf-control=primary],[data-yf-control=surface]):is([aria-pressed=true],[aria-selected=true],[aria-expanded=true],[aria-current]:not([aria-current=false])) {
+      border-block-end:3px solid Highlight!important;text-decoration:underline;
+    }
+    :root :is(input[data-yf-control=search],.yf-searchbar input.yf-search) {padding-inline-start:12px!important}
+  }
+}
+
+@media screen {
+  .guide-nav a[data-yf-control=surface],.stage-nav a[data-yf-control=surface] {
+    --yf-control-ink:var(--section-ink);
+    --yf-control-wash:color-mix(in srgb,var(--section-ink) 9%,#fcfafc);
+  }
+}
+@media screen and (max-width:980px) {
+  .enhanced .menu-toggle[data-yf-control],.guide-nav a[data-yf-control=surface] {min-block-size:44px}
+  .enhanced .menu-toggle::after {
+    content:"";display:inline-block;width:6px;height:6px;
+    margin:-3px 2px 0;border:solid currentColor;border-width:0 1.5px 1.5px 0;
+    transform:rotate(45deg);
+  }
+  .enhanced .menu-toggle[aria-expanded=true]::after {transform:rotate(225deg);margin-top:3px}
+}
+@media screen and (max-width:980px) and (prefers-reduced-motion:no-preference) {
+  .menu-toggle::after {transition:transform .15s ease-out}
+}
+
+</style><noscript><style>.menu-toggle,.sidebar-foot{display:none!important}</style></noscript></head><body><a class="skip" href="#content">跳到正文</a><div class="atmosphere" aria-hidden="true"></div><div class="shell">
+<aside class="rail glass" aria-label="指南导航"><div class="brand-row"><span class="brand-icon" aria-hidden="true"></span><div class="brand"><strong>云帆</strong><small>项目文档</small></div><button type="button" class="menu-toggle" data-yf-control="button" aria-controls="guide-nav" aria-expanded="false"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1"></path></svg><span>目录</span></button></div><nav class="guide-nav" id="guide-nav" aria-label="章节目录"><a data-yf-control="surface" href="#overview" aria-current="location"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4.7c3.2-.9 6-.5 9 1.2 3-1.7 5.8-2.1 9-1.2v14.1c-3-.8-5.9-.4-9 1.2-3.1-1.6-6-2-9-1.2zM12 6v14"></path></svg>项目介绍</a><a data-yf-control="surface" href="#architecture"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><rect x="8" y="3" width="8" height="5.5" rx="1.3"></rect><rect x="2.5" y="15.5" width="7" height="5.5" rx="1.3"></rect><rect x="14.5" y="15.5" width="7" height="5.5" rx="1.3"></rect><path d="M12 8.5v3.5M6 15.5V12h12v3.5"></path></svg>系统架构</a><a data-yf-control="surface" href="#modules"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.3"></rect><rect x="14" y="3" width="7" height="7" rx="1.3"></rect><rect x="3" y="14" width="7" height="7" rx="1.3"></rect><rect x="14" y="14" width="7" height="7" rx="1.3"></rect></svg>模块关系</a><a data-yf-control="surface" href="#flows"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><circle cx="6" cy="5" r="2"></circle><circle cx="18" cy="12" r="2"></circle><circle cx="6" cy="19" r="2"></circle><path d="M6 7v10m1-5h9"></path></svg>业务链路</a><a data-yf-control="surface" href="#organization"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><circle cx="10" cy="8" r="3"></circle><path d="M3.5 20v-1.5c0-3.1 2.5-5.5 6.5-5.5s6.5 2.4 6.5 5.5V20m0-15a3.2 3.2 0 0 1 .3 6M18 14c2.3.6 3.3 2.6 3.3 5"></path></svg>组织与租户</a><a data-yf-control="surface" href="#reading"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5M14 4l-4 16"></path></svg>源码阅读路线</a></nav><div class="glass-setting">
+<label for="glass-transparency">面板透明度<output id="glass-value" for="glass-transparency" aria-hidden="true">65%</output></label>
+<input id="glass-transparency" type="range" min="0" max="85" step="1" value="65" aria-valuetext="65%">
+</div><div class="sidebar-foot"><div class="progress-meta"><span>阅读进度</span><output aria-live="off">0%</output></div><div class="meter" aria-hidden="true"><span></span></div><button type="button" class="action print" data-yf-control="button"><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><path d="M7 8V3h10v5M6 17H3V9h18v8h-3"></path><path d="M7 14h10v7H7zm10-3h1"></path></svg>打印指南</button></div></aside>
+<main class="glass" id="content" tabindex="-1"><header class="hero" id="overview" tabindex="-1"><div class="hero-copy"><h1>云帆项目入门指南</h1><p class="hero-lead">云帆把销售、售前、实施和财务的工作连在一起。</p><p class="hero-detail">沿着一笔订单，看客户和商机如何进入合同，再走向交付、收款与开票。</p><div class="version"><span><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><circle cx="6" cy="5" r="2"></circle><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="6" r="2"></circle><path d="M6 7v10m0-3c7 0 12-1 12-6"></path></svg>main · f1722f308d</span><span><svg class="icon" aria-hidden="true" viewbox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M7 3v4m10-4v4M3 10h18"></path></svg>2026.11.25</span></div><div class="guide-related"><a class="manual-entry" href="%E4%BA%91%E5%B8%86%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%A7%84%E5%88%99%E6%89%8B%E5%86%8C.html">业务流程与规则手册 →</a><a class="manual-entry dictionary-entry" href="%E4%BA%91%E5%B8%86%E5%AE%9E%E4%BD%93%E8%A1%A8%E4%B8%8E%E5%AD%97%E6%AE%B5%E5%AD%97%E5%85%B8.html">实体表与字段字典 →</a></div></div><div class="sail-art" aria-hidden="true"><div class="origin"><i class="water"></i><i class="water w2"></i><i class="water w3"></i><i class="fold main-sail"></i><i class="fold inner"></i><i class="fold jib"></i><i class="fold keel"></i></div></div></header>
+<section class="chapter panorama" aria-labelledby="project-title"><h2 id="project-title">项目介绍</h2><p class="section-intro">客户关系管理（CRM）记录<strong class="reader-key">“在跟进谁”</strong>。订单管理（OMS）记录<strong class="reader-key">“签了什么、交付了多少”</strong>。</p><h3 id="pan-title" class="journey-heading">一笔销售业务怎样流转</h3><p class="journey-tip">选择一个环节，查看单据如何交接。</p><div class="journey"><div class="stage-nav" aria-label="销售流程环节"><a data-yf-control="surface" id="tab-lead" href="#stage-lead"><span>CRM</span><strong>线索与客户</strong></a><a data-yf-control="surface" id="tab-opp" href="#stage-opp"><span>CRM</span><strong>商机</strong></a><a data-yf-control="surface" id="tab-contract" href="#stage-contract"><span>OMS</span><strong>合同</strong></a><a data-yf-control="surface" id="tab-order" href="#stage-order"><span>OMS</span><strong>订单</strong></a></div><div class="stage-detail" id="stage-lead"><h3>从线索建立客户档案</h3><p>销售跟进线索，满足转换条件后可以保存客户草稿或提审。客户档案承载后续商机、合同及业务租户的客户归属。</p></div><div class="stage-detail" id="stage-opp"><h3>把一次销售机会推进到签约</h3><p>客户可以有多个商机。商机推进到 S5 且尚未签约时，销售选择合同类型，从管理后台进入 OMS 合同新建页。</p></div><div class="stage-detail" id="stage-contract"><h3>用合同明确销售和签约双方</h3><p>合同关联客户、销售组织、签约主体及商品明细。以国内销售合同为例，合同经过审批、完成签约后生效，OMS 再根据合同细类判断是否生成订单。</p></div><div class="stage-detail" id="stage-order"><h3>用一张订单跟踪交付和资金</h3><p>软件商品可向业务租户<a class="order-path" data-lane="A" href="%E4%BA%91%E5%B8%86%E5%AE%9E%E4%BD%93%E8%A1%A8%E4%B8%8E%E5%AD%97%E6%AE%B5%E5%AD%97%E5%85%B8.html#play-A1">下发授权</a>，硬件商品可<a class="order-path" data-lane="B" href="%E4%BA%91%E5%B8%86%E5%AE%9E%E4%BD%93%E8%A1%A8%E4%B8%8E%E5%AD%97%E6%AE%B5%E5%AD%97%E5%85%B8.html#play-B1">生成发货单</a>。符合条件的订单可以发起<a class="order-path" data-lane="C" href="%E4%BA%91%E5%B8%86%E5%AE%9E%E4%BD%93%E8%A1%A8%E4%B8%8E%E5%AD%97%E6%AE%B5%E5%AD%97%E5%85%B8.html#play-C1">收款</a>、<a class="order-path" data-lane="D" href="%E4%BA%91%E5%B8%86%E5%AE%9E%E4%BD%93%E8%A1%A8%E4%B8%8E%E5%AD%97%E6%AE%B5%E5%AD%97%E5%85%B8.html#play-D1">开票</a>。下游单据将数量或金额回写订单，支撑后续核对。</p></div></div><p class="sources"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/docs/architecture/business-map/BUSINESS_MAP.md" target="_blank" rel="noopener">查看业务地图</a><a href="file:///Users/wenkai/it/suixingpay/ai-starter/ARCHITECTURE.md" target="_blank" rel="noopener">查看领域与代码目录</a></p></section>
+<section class="chapter" id="architecture" tabindex="-1">
+<h2>系统架构</h2>
+<p class="section-intro">管理后台、工单验收 H5 和云帆 APP 的请求<strong class="reader-key">进入同一个 Java 服务</strong>。八个后端模块随这个 Spring Boot 应用一起装配，模块之间可在进程内调用。</p>
+<div class="stack-flow" role="group" aria-label="客户端、接口、服务和存储的关系">
+<div class="stack-row" style="--node-count:3"><span class="stack-label">客户端</span><div class="stack-node"><b>管理后台</b><small>Vue 3 · Vben · Ant Design Vue</small></div><div class="stack-node"><b>验收 H5</b><small>签名、提交工单验收</small></div><div class="stack-node"><b>云帆 APP</b><small>移动首页、待办与通知</small></div></div>
+<div class="stack-join">↓ 管理后台与验收 H5 走管理接口，APP 首页走移动接口</div>
+<div class="stack-row" style="--node-count:2"><span class="stack-label">接口入口</span><div class="stack-node"><b>/admin-api</b><small>管理接口及 H5 验收入口</small></div><div class="stack-node"><b>/app-api</b><small>移动端业务入口</small></div></div>
+<div class="stack-join">↓ Spring Web 将请求交给对应的 Controller</div>
+<div class="stack-row" style="--node-count:1"><span class="stack-label">应用服务</span><div class="stack-node stack-server"><b>yunfun-server</b><small>Java 17 · Spring Boot 3.5.9 · 八个业务模块</small></div></div>
+<div class="stack-join">↓ 业务逻辑通过持久层访问数据，缓存由框架接入</div>
+<div class="stack-row" style="--node-count:2"><span class="stack-label">存储与缓存</span><div class="stack-node"><b>MySQL</b><small>客户、合同、订单等业务记录</small></div><div class="stack-node"><b>Redis</b><small>共享缓存</small></div></div></div>
+<p>接口前缀由 Controller 所在的包决定。H5 工单验收通过 <code>/admin-api/imp/acceptance/h5/…</code> 取详情、上传签名并提交。APP 首页通过 <code>/app-api/home/entry-counts</code> 汇总 BPM 待办和系统未读通知。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-framework/yunfun-spring-boot-starter-web/src/main/java/cn/iocoder/yunfun/framework/web/config/WebProperties.java" target="_blank" rel="noopener">接口前缀配置</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/h5-project/src/api/workorderAcceptance.ts" target="_blank" rel="noopener">H5 验收请求</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-app/src/main/java/cn/iocoder/yunfun/module/app/service/home/AppHomeServiceImpl.java" target="_blank" rel="noopener">APP 首页聚合实现</a></span></p>
+<h3>沿一次客户列表查询读代码</h3>
+<ol><li><b>页面收集筛选条件。</b> 后台客户列表调用 <code>getCustomerPage</code>，前端请求层把条件作为 JSON 发给 <code>POST /admin-api/crm/customer/page</code>。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/web-antd/src/views/crm/customer/index.vue" target="_blank" rel="noopener">客户列表页面</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/web-antd/src/api/crm/customer/index.ts" target="_blank" rel="noopener">客户请求封装</a></span></li>
+<li><b>接口确定查询权限。</b> <code>CustomerController.getCustomerPagePost</code> 复用分页处理，按菜单对应的数据权限调用服务。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/controller/admin/customer/CustomerController.java" target="_blank" rel="noopener">CustomerController</a></span></li>
+<li><b>服务组织查询结果。</b> <code>CustomerServiceImpl.getCustomerPage</code> 将分页查询委托给 <code>customerMapper.selectPage</code>，返回供列表展示的数据。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/service/customer/CustomerServiceImpl.java" target="_blank" rel="noopener">CustomerServiceImpl</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/dal/mysql/customer/CustomerMapper.java" target="_blank" rel="noopener">CustomerMapper</a></span></li>
+<li><b>实体映射到业务表。</b> 在 <code>CustomerDO</code> 的 <code>@TableName</code> 可确认主表为 <code>crm_customer</code>。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/dal/dataobject/customer/CustomerDO.java" target="_blank" rel="noopener">CustomerDO</a></span></li></ol>
+</section>
+<section class="chapter" id="modules" tabindex="-1">
+<h2>模块关系</h2>
+<p class="section-intro"><code>yunfun-server</code> 同时装配这八个模块，简称对应 <code>yunfun-module-简称</code>。图中展示各模块在<strong class="reader-key">编译时直接引用</strong>的业务模块。</p>
+<figure class="dep-overview" id="module-dependency-map" aria-labelledby="dep-map-title">
+<figcaption><div><h3 id="dep-map-title">模块直接依赖图</h3>
+<p id="dep-legend"><strong>箭头从引用方指向被引用方。</strong>例如 <code>system → infra</code> 表示组织与权限模块直接依赖基础设施模块。</p></div>
+<div class="dep-lens" hidden><label id="dep-origin-label" for="dep-origin">按引用方查看</label>
+<select id="dep-origin"><option value="">全部模块</option><option value="oms">oms · 交易与履约</option><option value="crm">crm · 客户与销售</option><option value="presale">presale · 售前</option><option value="app">app · 移动首页</option><option value="bpm">bpm · 审批流程</option><option value="profit">profit · 支付分润</option><option value="system">system · 组织与权限</option><option value="infra">infra · 基础设施</option></select>
+<button type="button" id="dep-trigger" class="dep-trigger" role="combobox" aria-labelledby="dep-origin-label dep-selected" aria-controls="dep-options" aria-haspopup="listbox" aria-expanded="false" hidden><span class="dep-swatch" aria-hidden="true"></span><span class="dep-trigger-value" id="dep-selected">全部模块</span><svg class="dep-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 8 4.5 4.5L14.5 8"/></svg></button>
+<ul id="dep-options" class="dep-options" role="listbox" aria-labelledby="dep-origin-label" hidden></ul></div></figcaption>
+<svg xmlns="http://www.w3.org/2000/svg" class="dep-scheme dep-wide" viewBox="0 0 984 292" role="group" aria-labelledby="dep-map-title" aria-describedby="dep-legend">
+<defs>
+<marker id="dep-tip-wide-oms" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#754971"/></marker>
+<marker id="dep-tip-wide-crm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#356858"/></marker>
+<marker id="dep-tip-wide-presale" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#496b89"/></marker>
+<marker id="dep-tip-wide-app" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#885e36"/></marker>
+<marker id="dep-tip-wide-bpm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#416a72"/></marker>
+<marker id="dep-tip-wide-profit" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#685689"/></marker>
+<marker id="dep-tip-wide-system" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#446b52"/></marker>
+</defs>
+<g class="dep-edge" data-source="oms" data-target="crm" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 crm</title><path class="dep-gap" d="M 110 153 L 133.5 153"/><path class="dep-route" d="M 110 153 L 133.5 153" marker-end="url(#dep-tip-wide-oms)"/></g>
+<g class="dep-edge" data-source="crm" data-target="presale" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 presale</title><path class="dep-gap" d="M 233 153 L 256.5 153"/><path class="dep-route" d="M 233 153 L 256.5 153" marker-end="url(#dep-tip-wide-crm)"/></g>
+<g class="dep-edge" data-source="app" data-target="bpm" style="--route:#885e36" aria-hidden="true">
+<title>app 直接依赖 bpm</title><path class="dep-gap" d="M 479 153 L 502.5 153"/><path class="dep-route" d="M 479 153 L 502.5 153" marker-end="url(#dep-tip-wide-app)"/></g>
+<g class="dep-edge" data-source="profit" data-target="system" style="--route:#685689" aria-hidden="true">
+<title>profit 直接依赖 system</title><path class="dep-gap" d="M 725 153 L 748.5 153"/><path class="dep-route" d="M 725 153 L 748.5 153" marker-end="url(#dep-tip-wide-profit)"/></g>
+<g class="dep-edge" data-source="system" data-target="infra" style="--route:#446b52" aria-hidden="true">
+<title>system 直接依赖 infra</title><path class="dep-gap" d="M 848 153 L 871.5 153"/><path class="dep-route" d="M 848 153 L 871.5 153" marker-end="url(#dep-tip-wide-system)"/></g>
+<g class="dep-edge" data-source="crm" data-target="infra" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 infra</title><path class="dep-gap" d="M 178 125 L 178 29 Q 178 21 186 21 L 914 21 Q 922 21 922 29 L 922 123.5"/><path class="dep-route" d="M 178 125 L 178 29 Q 178 21 186 21 L 914 21 Q 922 21 922 29 L 922 123.5" marker-end="url(#dep-tip-wide-crm)"/></g>
+<g class="dep-edge" data-source="oms" data-target="system" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 system</title><path class="dep-gap" d="M 61 125 L 61 46 Q 61 38 69 38 L 815 38 Q 823 38 823 46 L 823 123.5"/><path class="dep-route" d="M 61 125 L 61 46 Q 61 38 69 38 L 815 38 Q 823 38 823 46 L 823 123.5" marker-end="url(#dep-tip-wide-oms)"/></g>
+<g class="dep-edge" data-source="crm" data-target="system" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 system</title><path class="dep-gap" d="M 190 125 L 190 63 Q 190 55 198 55 L 803 55 Q 811 55 811 63 L 811 123.5"/><path class="dep-route" d="M 190 125 L 190 63 Q 190 55 198 55 L 803 55 Q 811 55 811 63 L 811 123.5" marker-end="url(#dep-tip-wide-crm)"/></g>
+<g class="dep-edge" data-source="presale" data-target="system" style="--route:#496b89" aria-hidden="true">
+<title>presale 直接依赖 system</title><path class="dep-gap" d="M 307 125 L 307 80 Q 307 72 315 72 L 791 72 Q 799 72 799 80 L 799 123.5"/><path class="dep-route" d="M 307 125 L 307 80 Q 307 72 315 72 L 791 72 Q 799 72 799 80 L 799 123.5" marker-end="url(#dep-tip-wide-presale)"/></g>
+<g class="dep-edge" data-source="app" data-target="system" style="--route:#885e36" aria-hidden="true">
+<title>app 直接依赖 system</title><path class="dep-gap" d="M 430 125 L 430 97 Q 430 89 438 89 L 779 89 Q 787 89 787 97 L 787 123.5"/><path class="dep-route" d="M 430 125 L 430 97 Q 430 89 438 89 L 779 89 Q 787 89 787 97 L 787 123.5" marker-end="url(#dep-tip-wide-app)"/></g>
+<g class="dep-edge" data-source="bpm" data-target="system" style="--route:#416a72" aria-hidden="true">
+<title>bpm 直接依赖 system</title><path class="dep-gap" d="M 553 125 L 553 114 Q 553 106 561 106 L 767 106 Q 775 106 775 114 L 775 123.5"/><path class="dep-route" d="M 553 125 L 553 114 Q 553 106 561 106 L 767 106 Q 775 106 775 114 L 775 123.5" marker-end="url(#dep-tip-wide-bpm)"/></g>
+<g class="dep-edge" data-source="presale" data-target="bpm" style="--route:#496b89" aria-hidden="true">
+<title>presale 直接依赖 bpm</title><path class="dep-gap" d="M 307 181 L 307 192 Q 307 200 315 200 L 533 200 Q 541 200 541 192 L 541 182.5"/><path class="dep-route" d="M 307 181 L 307 192 Q 307 200 315 200 L 533 200 Q 541 200 541 192 L 541 182.5" marker-end="url(#dep-tip-wide-presale)"/></g>
+<g class="dep-edge" data-source="crm" data-target="bpm" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 bpm</title><path class="dep-gap" d="M 184 181 L 184 209 Q 184 217 192 217 L 545 217 Q 553 217 553 209 L 553 182.5"/><path class="dep-route" d="M 184 181 L 184 209 Q 184 217 192 217 L 545 217 Q 553 217 553 209 L 553 182.5" marker-end="url(#dep-tip-wide-crm)"/></g>
+<g class="dep-edge" data-source="oms" data-target="bpm" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 bpm</title><path class="dep-gap" d="M 73 181 L 73 226 Q 73 234 81 234 L 557 234 Q 565 234 565 226 L 565 182.5"/><path class="dep-route" d="M 73 181 L 73 226 Q 73 234 81 234 L 557 234 Q 565 234 565 226 L 565 182.5" marker-end="url(#dep-tip-wide-oms)"/></g>
+<g class="dep-edge" data-source="oms" data-target="profit" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 profit</title><path class="dep-gap" d="M 61 181 L 61 243 Q 61 251 69 251 L 662 251 Q 670 251 670 243 L 670 182.5"/><path class="dep-route" d="M 61 181 L 61 243 Q 61 251 69 251 L 662 251 Q 670 251 670 243 L 670 182.5" marker-end="url(#dep-tip-wide-oms)"/></g>
+<g class="dep-edge" data-source="oms" data-target="infra" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 infra</title><path class="dep-gap" d="M 49 181 L 49 260 Q 49 268 57 268 L 920 268 Q 928 268 928 260 L 928 182.5"/><path class="dep-route" d="M 49 181 L 49 260 Q 49 268 57 268 L 920 268 Q 928 268 928 260 L 928 182.5" marker-end="url(#dep-tip-wide-oms)"/></g>
+<g class="dep-edge" data-source="profit" data-target="infra" style="--route:#685689" aria-hidden="true">
+<title>profit 直接依赖 infra</title><path class="dep-gap" d="M 682 181 L 682 192 Q 682 200 690 200 L 908 200 Q 916 200 916 192 L 916 182.5"/><path class="dep-route" d="M 682 181 L 682 192 Q 682 200 690 200 L 908 200 Q 916 200 916 192 L 916 182.5" marker-end="url(#dep-tip-wide-profit)"/></g>
+<a class="dep-module" data-module="oms" href="#module-oms" style="--route:#754971" aria-label="oms，交易与履约，查看模块职责"><title>oms（交易与履约）直接依赖 profit、crm、infra、system、bpm</title>
+<rect x="12" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="61" y="151">oms</text>
+<text class="dep-module-role" x="61" y="169">交易与履约</text></a>
+<a class="dep-module" data-module="crm" href="#module-crm" style="--route:#356858" aria-label="crm，客户与销售，查看模块职责"><title>crm（客户与销售）直接依赖 infra、system、bpm、presale</title>
+<rect x="135" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="184" y="151">crm</text>
+<text class="dep-module-role" x="184" y="169">客户与销售</text></a>
+<a class="dep-module" data-module="presale" href="#module-presale" style="--route:#496b89" aria-label="presale，售前，查看模块职责"><title>presale（售前）直接依赖 system、bpm</title>
+<rect x="258" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="307" y="151">presale</text>
+<text class="dep-module-role" x="307" y="169">售前</text></a>
+<a class="dep-module" data-module="app" href="#module-app" style="--route:#885e36" aria-label="app，移动首页，查看模块职责"><title>app（移动首页）直接依赖 system、bpm</title>
+<rect x="381" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="430" y="151">app</text>
+<text class="dep-module-role" x="430" y="169">移动首页</text></a>
+<a class="dep-module" data-module="bpm" href="#module-bpm" style="--route:#416a72" aria-label="bpm，审批流程，查看模块职责"><title>bpm（审批流程）直接依赖 system</title>
+<rect x="504" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="553" y="151">bpm</text>
+<text class="dep-module-role" x="553" y="169">审批流程</text></a>
+<a class="dep-module" data-module="profit" href="#module-profit" style="--route:#685689" aria-label="profit，支付分润，查看模块职责"><title>profit（支付分润）直接依赖 infra、system</title>
+<rect x="627" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="676" y="151">profit</text>
+<text class="dep-module-role" x="676" y="169">支付分润</text></a>
+<a class="dep-module" data-module="system" href="#module-system" style="--route:#446b52" aria-label="system，组织与权限，查看模块职责"><title>system（组织与权限）直接依赖 infra</title>
+<rect x="750" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="799" y="151">system</text>
+<text class="dep-module-role" x="799" y="169">组织与权限</text></a>
+<a class="dep-module" data-module="infra" href="#module-infra" style="--route:#69566a" aria-label="infra，基础设施，查看模块职责"><title>infra（基础设施）没有直接依赖的业务模块</title>
+<rect x="873" y="125" width="98" height="56" rx="9"/>
+<text class="dep-module-code" x="922" y="151">infra</text>
+<text class="dep-module-role" x="922" y="169">基础设施</text></a>
+</svg>
+<svg xmlns="http://www.w3.org/2000/svg" class="dep-scheme dep-tall" viewBox="0 0 266 558" role="group" aria-labelledby="dep-map-title" aria-describedby="dep-legend">
+<defs>
+<marker id="dep-tip-tall-oms" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#754971"/></marker>
+<marker id="dep-tip-tall-crm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#356858"/></marker>
+<marker id="dep-tip-tall-presale" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#496b89"/></marker>
+<marker id="dep-tip-tall-app" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#885e36"/></marker>
+<marker id="dep-tip-tall-bpm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#416a72"/></marker>
+<marker id="dep-tip-tall-profit" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#685689"/></marker>
+<marker id="dep-tip-tall-system" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.4 7.8 4 0 7.6 1.7 4Z" fill="#446b52"/></marker>
+</defs>
+<g class="dep-edge" data-source="oms" data-target="crm" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 crm</title><path class="dep-gap" d="M 133 60 L 133 76.5"/><path class="dep-route" d="M 133 60 L 133 76.5" marker-end="url(#dep-tip-tall-oms)"/></g>
+<g class="dep-edge" data-source="crm" data-target="presale" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 presale</title><path class="dep-gap" d="M 133 130 L 133 146.5"/><path class="dep-route" d="M 133 130 L 133 146.5" marker-end="url(#dep-tip-tall-crm)"/></g>
+<g class="dep-edge" data-source="app" data-target="bpm" style="--route:#885e36" aria-hidden="true">
+<title>app 直接依赖 bpm</title><path class="dep-gap" d="M 133 270 L 133 286.5"/><path class="dep-route" d="M 133 270 L 133 286.5" marker-end="url(#dep-tip-tall-app)"/></g>
+<g class="dep-edge" data-source="profit" data-target="system" style="--route:#685689" aria-hidden="true">
+<title>profit 直接依赖 system</title><path class="dep-gap" d="M 133 410 L 133 426.5"/><path class="dep-route" d="M 133 410 L 133 426.5" marker-end="url(#dep-tip-tall-profit)"/></g>
+<g class="dep-edge" data-source="system" data-target="infra" style="--route:#446b52" aria-hidden="true">
+<title>system 直接依赖 infra</title><path class="dep-gap" d="M 133 480 L 133 496.5"/><path class="dep-route" d="M 133 480 L 133 496.5" marker-end="url(#dep-tip-tall-system)"/></g>
+<g class="dep-edge" data-source="crm" data-target="infra" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 infra</title><path class="dep-gap" d="M 83 99.5 L 26 99.5 Q 21 99.5 21 104.5 L 21 519 Q 21 524 26 524 L 81.5 524"/><path class="dep-route" d="M 83 99.5 L 26 99.5 Q 21 99.5 21 104.5 L 21 519 Q 21 524 26 524 L 81.5 524" marker-end="url(#dep-tip-tall-crm)"/></g>
+<g class="dep-edge" data-source="oms" data-target="system" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 system</title><path class="dep-gap" d="M 83 34 L 36 34 Q 31 34 31 39 L 31 467 Q 31 472 36 472 L 81.5 472"/><path class="dep-route" d="M 83 34 L 36 34 Q 31 34 31 39 L 31 467 Q 31 472 36 472 L 81.5 472" marker-end="url(#dep-tip-tall-oms)"/></g>
+<g class="dep-edge" data-source="crm" data-target="system" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 system</title><path class="dep-gap" d="M 83 108.5 L 46 108.5 Q 41 108.5 41 113.5 L 41 458 Q 41 463 46 463 L 81.5 463"/><path class="dep-route" d="M 83 108.5 L 46 108.5 Q 41 108.5 41 113.5 L 41 458 Q 41 463 46 463 L 81.5 463" marker-end="url(#dep-tip-tall-crm)"/></g>
+<g class="dep-edge" data-source="presale" data-target="system" style="--route:#496b89" aria-hidden="true">
+<title>presale 直接依赖 system</title><path class="dep-gap" d="M 83 174 L 56 174 Q 51 174 51 179 L 51 449 Q 51 454 56 454 L 81.5 454"/><path class="dep-route" d="M 83 174 L 56 174 Q 51 174 51 179 L 51 449 Q 51 454 56 454 L 81.5 454" marker-end="url(#dep-tip-tall-presale)"/></g>
+<g class="dep-edge" data-source="app" data-target="system" style="--route:#885e36" aria-hidden="true">
+<title>app 直接依赖 system</title><path class="dep-gap" d="M 83 244 L 66 244 Q 61 244 61 249 L 61 440 Q 61 445 66 445 L 81.5 445"/><path class="dep-route" d="M 83 244 L 66 244 Q 61 244 61 249 L 61 440 Q 61 445 66 445 L 81.5 445" marker-end="url(#dep-tip-tall-app)"/></g>
+<g class="dep-edge" data-source="bpm" data-target="system" style="--route:#416a72" aria-hidden="true">
+<title>bpm 直接依赖 system</title><path class="dep-gap" d="M 83 314 L 76 314 Q 71 314 71 319 L 71 431 Q 71 436 76 436 L 81.5 436"/><path class="dep-route" d="M 83 314 L 76 314 Q 71 314 71 319 L 71 431 Q 71 436 76 436 L 81.5 436" marker-end="url(#dep-tip-tall-bpm)"/></g>
+<g class="dep-edge" data-source="presale" data-target="bpm" style="--route:#496b89" aria-hidden="true">
+<title>presale 直接依赖 bpm</title><path class="dep-gap" d="M 183 174 L 190 174 Q 195 174 195 179 L 195 300 Q 195 305 190 305 L 184.5 305"/><path class="dep-route" d="M 183 174 L 190 174 Q 195 174 195 179 L 195 300 Q 195 305 190 305 L 184.5 305" marker-end="url(#dep-tip-tall-presale)"/></g>
+<g class="dep-edge" data-source="crm" data-target="bpm" style="--route:#356858" aria-hidden="true">
+<title>crm 直接依赖 bpm</title><path class="dep-gap" d="M 183 104 L 200 104 Q 205 104 205 109 L 205 309 Q 205 314 200 314 L 184.5 314"/><path class="dep-route" d="M 183 104 L 200 104 Q 205 104 205 109 L 205 309 Q 205 314 200 314 L 184.5 314" marker-end="url(#dep-tip-tall-crm)"/></g>
+<g class="dep-edge" data-source="oms" data-target="bpm" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 bpm</title><path class="dep-gap" d="M 183 43 L 210 43 Q 215 43 215 48 L 215 318 Q 215 323 210 323 L 184.5 323"/><path class="dep-route" d="M 183 43 L 210 43 Q 215 43 215 48 L 215 318 Q 215 323 210 323 L 184.5 323" marker-end="url(#dep-tip-tall-oms)"/></g>
+<g class="dep-edge" data-source="oms" data-target="profit" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 profit</title><path class="dep-gap" d="M 183 34 L 220 34 Q 225 34 225 39 L 225 374.5 Q 225 379.5 220 379.5 L 184.5 379.5"/><path class="dep-route" d="M 183 34 L 220 34 Q 225 34 225 39 L 225 374.5 Q 225 379.5 220 379.5 L 184.5 379.5" marker-end="url(#dep-tip-tall-oms)"/></g>
+<g class="dep-edge" data-source="oms" data-target="infra" style="--route:#754971" aria-hidden="true">
+<title>oms 直接依赖 infra</title><path class="dep-gap" d="M 183 25 L 230 25 Q 235 25 235 30 L 235 523.5 Q 235 528.5 230 528.5 L 184.5 528.5"/><path class="dep-route" d="M 183 25 L 230 25 Q 235 25 235 30 L 235 523.5 Q 235 528.5 230 528.5 L 184.5 528.5" marker-end="url(#dep-tip-tall-oms)"/></g>
+<g class="dep-edge" data-source="profit" data-target="infra" style="--route:#685689" aria-hidden="true">
+<title>profit 直接依赖 infra</title><path class="dep-gap" d="M 183 388.5 L 190 388.5 Q 195 388.5 195 393.5 L 195 514.5 Q 195 519.5 190 519.5 L 184.5 519.5"/><path class="dep-route" d="M 183 388.5 L 190 388.5 Q 195 388.5 195 393.5 L 195 514.5 Q 195 519.5 190 519.5 L 184.5 519.5" marker-end="url(#dep-tip-tall-profit)"/></g>
+<a class="dep-module" data-module="oms" href="#module-oms" style="--route:#754971" aria-label="oms，交易与履约，查看模块职责"><title>oms（交易与履约）直接依赖 profit、crm、infra、system、bpm</title>
+<rect x="83" y="8" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="32">oms</text>
+<text class="dep-module-role" x="133" y="50">交易与履约</text></a>
+<a class="dep-module" data-module="crm" href="#module-crm" style="--route:#356858" aria-label="crm，客户与销售，查看模块职责"><title>crm（客户与销售）直接依赖 infra、system、bpm、presale</title>
+<rect x="83" y="78" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="102">crm</text>
+<text class="dep-module-role" x="133" y="120">客户与销售</text></a>
+<a class="dep-module" data-module="presale" href="#module-presale" style="--route:#496b89" aria-label="presale，售前，查看模块职责"><title>presale（售前）直接依赖 system、bpm</title>
+<rect x="83" y="148" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="172">presale</text>
+<text class="dep-module-role" x="133" y="190">售前</text></a>
+<a class="dep-module" data-module="app" href="#module-app" style="--route:#885e36" aria-label="app，移动首页，查看模块职责"><title>app（移动首页）直接依赖 system、bpm</title>
+<rect x="83" y="218" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="242">app</text>
+<text class="dep-module-role" x="133" y="260">移动首页</text></a>
+<a class="dep-module" data-module="bpm" href="#module-bpm" style="--route:#416a72" aria-label="bpm，审批流程，查看模块职责"><title>bpm（审批流程）直接依赖 system</title>
+<rect x="83" y="288" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="312">bpm</text>
+<text class="dep-module-role" x="133" y="330">审批流程</text></a>
+<a class="dep-module" data-module="profit" href="#module-profit" style="--route:#685689" aria-label="profit，支付分润，查看模块职责"><title>profit（支付分润）直接依赖 infra、system</title>
+<rect x="83" y="358" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="382">profit</text>
+<text class="dep-module-role" x="133" y="400">支付分润</text></a>
+<a class="dep-module" data-module="system" href="#module-system" style="--route:#446b52" aria-label="system，组织与权限，查看模块职责"><title>system（组织与权限）直接依赖 infra</title>
+<rect x="83" y="428" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="452">system</text>
+<text class="dep-module-role" x="133" y="470">组织与权限</text></a>
+<a class="dep-module" data-module="infra" href="#module-infra" style="--route:#69566a" aria-label="infra，基础设施，查看模块职责"><title>infra（基础设施）没有直接依赖的业务模块</title>
+<rect x="83" y="498" width="100" height="52" rx="9"/>
+<text class="dep-module-code" x="133" y="522">infra</text>
+<text class="dep-module-role" x="133" y="540">基础设施</text></a>
+</svg>
+<p class="dep-map-foot"><span class="dep-map-status" role="status">8 个模块，17 条直接依赖。</span> <span class="dep-map-hint">点击模块名可查看下方的职责说明。</span></p>
+</figure>
+<h3 class="dep-table-heading">模块职责</h3>
+<p class="dep-table-help">首列简称链接到该模块的 Maven 配置。点击依赖名，可跳到对应模块的职责说明。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">模块</th><th scope="col">负责什么</th><th scope="col">直接依赖的业务模块</th></tr></thead><tbody><tr id="module-crm" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/pom.xml" target="_blank" rel="noopener">crm</a><br><small>客户与销售</small></th><td>线索、客户、商机、销售组织、签约主体，以及派工、项目和实施工单。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-infra">infra</a><span class="dep-sep">、</span><a class="dep-link" href="#module-system">system</a><span class="dep-sep">、</span><a class="dep-link" href="#module-bpm">bpm</a><span class="dep-sep">、</span><a class="dep-link" href="#module-presale">presale</a></td></tr><tr id="module-presale" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-presale/pom.xml" target="_blank" rel="noopener">presale</a><br><small>售前</small></th><td>受理售前申请，跟踪售前工单、处理进展与工时。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-system">system</a><span class="dep-sep">、</span><a class="dep-link" href="#module-bpm">bpm</a></td></tr><tr id="module-oms" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/pom.xml" target="_blank" rel="noopener">oms</a><br><small>交易与履约</small></th><td>商品、合同、订单、应收、收款、开票、发货、授权与业务租户。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-profit">profit</a><span class="dep-sep">、</span><a class="dep-link" href="#module-crm">crm</a><span class="dep-sep">、</span><a class="dep-link" href="#module-infra">infra</a><span class="dep-sep">、</span><a class="dep-link" href="#module-system">system</a><span class="dep-sep">、</span><a class="dep-link" href="#module-bpm">bpm</a></td></tr><tr id="module-profit" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-profit/pom.xml" target="_blank" rel="noopener">profit</a><br><small>支付分润</small></th><td>维护返佣规则和商户映射，处理结算数据，生成租户分润账单。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-infra">infra</a><span class="dep-sep">、</span><a class="dep-link" href="#module-system">system</a></td></tr><tr id="module-app" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-app/pom.xml" target="_blank" rel="noopener">app</a><br><small>移动首页</small></th><td>组合当前用户的审批待办摘要和未读通知数。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-system">system</a><span class="dep-sep">、</span><a class="dep-link" href="#module-bpm">bpm</a></td></tr><tr id="module-bpm" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-bpm/pom.xml" target="_blank" rel="noopener">bpm</a><br><small>审批流程</small></th><td>基于 Flowable 管理流程定义、实例和审批任务，对业务模块公开审批接口。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-system">system</a></td></tr><tr id="module-system" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-system/pom.xml" target="_blank" rel="noopener">system</a><br><small>组织与权限</small></th><td>用户、部门、角色、菜单、OAuth2、系统租户与消息通知。</td><td class="dep-list" data-label="直接依赖"><a class="dep-link" href="#module-infra">infra</a></td></tr><tr id="module-infra" tabindex="-1"><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-infra/pom.xml" target="_blank" rel="noopener">infra</a><br><small>基础设施</small></th><td>文件、配置、定时任务和日志等通用能力。</td><td class="dep-list" data-label="直接依赖">无</td></tr></tbody></table></div>
+<h3 class="relation-note">分润如何取得 OMS 的租户资料</h3>
+<p>OMS 的 Maven 配置直接引用了分润模块。反过来，分润在展示账单时也需要业务租户名称。分润服务调用公共接口 <code>ProfitCorporationQueryApi</code>，由 OMS 在同一进程中提供实现并读取租户数据。接口放在 <code>yunfun-common</code>，因此两个模块能交换数据，同时<strong class="reader-key">保持 Maven 依赖单向</strong>。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-profit/src/main/java/cn/iocoder/yunfun/module/profit/service/bill/ProfitTenantBillServiceImpl.java" target="_blank" rel="noopener">账单服务</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-framework/yunfun-common/src/main/java/cn/iocoder/yunfun/framework/common/biz/profit/ProfitCorporationQueryApi.java" target="_blank" rel="noopener">公共查询接口</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/api/profit/ProfitCorporationQueryApiImpl.java" target="_blank" rel="noopener">OMS 实现</a></span></p>
+<h3>阅读模块边界</h3>
+<p><code>yunfun-framework</code> 提供 Web、安全、MyBatis、Redis、多租户等 Starter，<code>yunfun-dependencies</code> 管理依赖版本。跨业务模块约定通过对方的 <code>api</code> 包或 <code>framework.common.biz</code> 契约协作。<code>yunfun-harness</code> 用 ArchUnit 检查新出现的越界引用，并通过基线记录历史例外。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/docs/architecture/LAYERS.md" target="_blank" rel="noopener">分层规则</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-harness/src/test/resources/architecture/known-violations.json" target="_blank" rel="noopener">历史例外清单</a></span></p>
+<p>仓库还保留 <code>yunfun-module-ai</code> 的源码。当前根 POM 与启动模块 POM 都注释了它，默认启动装配的是表中八个模块。<span class="source-tail"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/pom.xml" target="_blank" rel="noopener">根 POM</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-server/pom.xml" target="_blank" rel="noopener">启动模块 POM</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-server/src/main/java/cn/iocoder/yunfun/server/YunFunServerApplication.java" target="_blank" rel="noopener">Spring Boot 启动类</a></span></p>
+</section>
+<section class="chapter" id="flows" tabindex="-1"><h2>三条跨模块业务链路</h2>
+<article class="flow-case"><h3>商机签约与合同转单</h3>
+<p>销售在 CRM 跟进客户商机。<strong class="reader-key">进入 S5 且尚未签约时</strong>，可在商机列表选择合同类型，转到 OMS 的合同新建页填写并提交。CRM 随后可按客户、S5 进入时间和保护期查询已签销售合同。排查“发起签约”按钮应先看前端路由，CRM 的 <code>startContractSign</code> 后端方法仍返回“合同模块未集成”。</p>
+<p>合同进入“已生效”时，OMS 状态机检查合同细类。可自动转单的八类为国内销售、海外销售、中餐出海销售、续费销售、服务商销售、试用、测试和服务商订购。转单服务读取合同商品明细、创建订单，并把订单 ID 回写合同。</p>
+<p>以试用订单为例，转单服务发布订单生效事件。事务提交后，自动授权监听器接收事件，调用权益服务下发授权。测试订单走同一监听器，续费订单交给专门的续费监听器。</p>
+<p class="source-links"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/web-antd/src/views/crm/opportunity/index.vue" target="_blank" rel="noopener">商机列表与路由</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/service/opportunity/OpportunityServiceImpl.java" target="_blank" rel="noopener">商机查询与签约接口</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/service/contract/ContractStateMachineImpl.java" target="_blank" rel="noopener">合同状态机</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/service/contract/order/ContractOrderGenerationService.java" target="_blank" rel="noopener">合同转单规则</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/listener/AutoAuthDispatchListener.java" target="_blank" rel="noopener">试用与测试自动授权</a></p>
+</article>
+<article class="flow-case"><h3>从售前申请到实施项目</h3>
+<p>销售围绕客户发起售前申请。售前模块调用 BPM 创建流程，将流程实例 ID 记在申请上。审批结果监听器根据业务键找到申请，再核对流程实例 ID，避免旧流程覆盖新一轮提交。审批通过、驳回和撤回分别回写为已通过、已驳回和草稿。</p>
+<p>审批通过后，有权限的人员可通过 <code>POST /admin-api/presale/work-order</code> 建立工单。<strong class="reader-key">同一申请最多保留一张有效工单</strong>，取消后可重建。工单继承客户和销售归属，之后可分派、登记工时。</p>
+<p>需要交付时，在 CRM 实施项目上关联已有售前工单。桥表 <code>pdm_project_presale_work_order</code> 存放项目与工单的 ID，可以从两侧查询。创建工单和绑定项目是两个独立操作。</p>
+<p class="source-links"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-presale/src/main/java/cn/iocoder/yunfun/module/presale/service/impl/PresaleApprovalSyncServiceImpl.java" target="_blank" rel="noopener">售前审批与回写</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-presale/src/main/java/cn/iocoder/yunfun/module/presale/listener/BpmPresaleApplyApprovalStatusListener.java" target="_blank" rel="noopener">审批事件监听器</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-presale/src/main/java/cn/iocoder/yunfun/module/presale/service/impl/PresaleWorkOrderServiceImpl.java" target="_blank" rel="noopener">建单校验</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/service/implementation/impl/ImpProjectPresalesRelationServiceImpl.java" target="_blank" rel="noopener">项目关联入口</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-presale/src/main/java/cn/iocoder/yunfun/module/presale/dal/dataobject/ProjectPresaleWorkOrderDO.java" target="_blank" rel="noopener">关联表</a></p>
+</article>
+<article class="flow-case" data-domain="settlement"><h3>从通道源账单到租户分润</h3>
+<p>Profit 按批次导入支付通道的源账单。执行结算时，跑批服务校验<strong class="reader-key">交易月份、规则快照和导入结果</strong>，交给计算器生成业务租户的分润汇总与明细。账单分别保留交易月、结算月、支付通道和币种，可据此解释同一客户名下的多笔记录。</p>
+<p>发布服务校验汇总和明细金额，写入 <code>profit_tenant_bill</code> 与 <code>profit_tenant_bill_detail</code>，再将该通道、该结算月的新版本标为当前版本。OMS 负责业务租户及销售归属，归属变更时调用 Profit 的 API 同步账单和商家返佣规则。</p>
+<p class="source-links"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-profit/src/main/java/cn/iocoder/yunfun/module/profit/service/run/ProfitSettlementExecutionServiceImpl.java" target="_blank" rel="noopener">跑批与源账单校验</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-profit/src/main/java/cn/iocoder/yunfun/module/profit/service/run/ProfitTenantBillPublishService.java" target="_blank" rel="noopener">账单校验与发布</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-profit/src/main/java/cn/iocoder/yunfun/module/profit/dal/dataobject/bill/ProfitTenantBillDO.java" target="_blank" rel="noopener">账单字段</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/service/profit/OmsProfitTenantBillSyncService.java" target="_blank" rel="noopener">OMS 归属同步</a></p>
+</article>
+</section>
+<section class="chapter" id="organization" tabindex="-1"><h2>组织与租户</h2><p>同一份合同上，客户、归属销售组织和签约主体回答依次对应采购方、负责销售的组织和实际签署合同的主体。交付权益和计算分润时，还要找到该客户对应的业务租户。</p><div class="table-wrap"><table><thead><tr><th scope="col">概念与源码</th><th scope="col">管理职责</th><th scope="col">与其他对象的关联</th></tr></thead><tbody>
+<tr><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-system/src/main/java/cn/iocoder/yunfun/module/system/dal/dataobject/dept/DeptDO.java" target="_blank" rel="noopener">部门</a></th><td>System 用 <code>system_dept</code> 维护组织树、上下级和负责人。</td><td>组织树包含分公司、部门和销售组织，用户关联所属部门。销售组织的 <code>organizationId</code> 指向部门 ID。</td></tr>
+<tr><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/dal/dataobject/salesorg/SalesOrgDO.java" target="_blank" rel="noopener">销售组织</a></th><td>CRM 用 <code>crm_sales_org</code> 描述销售组织的性质、区域和业务模式。</td><td>客户或合同可以记录销售归属。销售组织与可用签约主体通过 <code>crm_sales_org_signing_entity</code> 关联。</td></tr>
+<tr><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/dal/dataobject/org/signing/OrgSigningEntityDO.java" target="_blank" rel="noopener">签约主体</a></th><td>CRM 用 <code>org_signing_entity</code> 记录我司或服务商主体名称、注册信息和企业识别码。</td><td>OMS 的合同及签约方记录保存对应主体 ID 和名称，供签署环节使用。</td></tr>
+<tr><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-system/src/main/java/cn/iocoder/yunfun/module/system/dal/dataobject/tenant/TenantDO.java" target="_blank" rel="noopener">系统租户</a></th><td>System 用 <code>system_tenant</code> 管理平台租户、套餐、状态和到期时间。</td><td>框架使用 <code>tenantId</code> 表示数据隔离范围。分润账单也记录这个 ID。</td></tr>
+<tr><th scope="row"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/dal/dataobject/corporation/OmsCorporationDO.java" target="_blank" rel="noopener">业务租户</a></th><td>OMS 用 <code>oms_corporation</code> 管理客户名下承接授权、支付配置和分润的经营实体。</td><td>通过 <code>customerId</code> 关联 CRM 客户。一个客户可有多个业务租户。分润账单用 <code>corporationId</code> 标识结算对象。</td></tr>
+</tbody></table></div>
+<p class="source-links"><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/service/salesorg/SalesOrgServiceImpl.java" target="_blank" rel="noopener">销售组织与部门映射</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-crm/src/main/java/cn/iocoder/yunfun/module/crm/dal/dataobject/salesorg/SalesOrgSigningEntityDO.java" target="_blank" rel="noopener">销售组织与主体关联</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/dal/dataobject/contract/ContractPartyDO.java" target="_blank" rel="noopener">合同签约方</a> · <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-profit/src/main/java/cn/iocoder/yunfun/module/profit/dal/dataobject/bill/ProfitTenantBillDO.java" target="_blank" rel="noopener">账单上的两种租户 ID</a></p>
+</section>
+
+<section class="chapter" id="reading" tabindex="-1"><h2>第一次读源码的路线</h2><p class="section-intro">以下链接指向本机的 <code>ai-starter</code> 仓库。先认识服务如何启动，再选一条与你工作有关的单据追下去。</p><ol class="read-list">
+<li><b>从装配入口认清系统边界</b><p>先打开 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-server/pom.xml" target="_blank" rel="noopener">服务装配清单</a>，对照 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-server/src/main/java/cn/iocoder/yunfun/server/YunFunServerApplication.java" target="_blank" rel="noopener">Spring Boot 启动类</a>，再读 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/docs/architecture/LAYERS.md" target="_blank" rel="noopener">分层规则</a>，看清模块和公共框架各自负责什么。</p></li>
+<li><b>跟一次客户列表请求</b><p>从管理端的 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/web-antd/src/views/crm/customer/index.vue" target="_blank" rel="noopener">客户列表页面</a> 进入，按<a href="#architecture">系统架构</a>中的顺序看请求封装、权限检查、Service 和 Mapper。需要表字段时可查 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/docs/architecture/data-model/README.md" target="_blank" rel="noopener">数据模型索引</a>。</p></li>
+<li><b>找出一份合同的上游和下游</b><p>从 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/web-antd/src/views/crm/opportunity/index.vue" target="_blank" rel="noopener">商机签约入口</a> 走到 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/service/contract/ContractStateMachineImpl.java" target="_blank" rel="noopener">合同状态机</a>，最后跟到 <a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-oms/src/main/java/cn/iocoder/yunfun/module/oms/service/contract/order/ContractOrderGenerationService.java" target="_blank" rel="noopener">订单生成服务</a>，找出创建和回写关联单据的两个位置。</p></li>
+<li><b>核对移动端的两类入口</b><p><a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-ui-admin-vben/apps/h5-project/src/api/workorderAcceptance.ts" target="_blank" rel="noopener">验收 H5</a> 调用实施工单接口。<a href="file:///Users/wenkai/it/suixingpay/ai-starter/yunfun-module-app/src/main/java/cn/iocoder/yunfun/module/app/service/home/AppHomeServiceImpl.java" target="_blank" rel="noopener">APP 首页</a> 汇总 BPM 待批和 system 未读通知，当前待办线索数固定返回 0。</p></li></ol></section>
+</main></div><script>(() => {
+  const root = document.documentElement;
+  const slider = document.querySelector('#glass-transparency');
+  const glassValue = document.querySelector('#glass-value');
+  const reducedGlass = matchMedia('(prefers-reduced-transparency: reduce)');
+  const glassKey = 'yunfun-guide.glass-transparency.v1';
+  let userTransparency = null;
+  try {
+    const saved = localStorage.getItem(glassKey);
+    if (saved !== null && /^\d{1,2}$/.test(saved) && Number(saved) <= Number(slider.max)) {
+      userTransparency = Number(saved);
+    }
+  } catch { /* Local file storage can be unavailable. */ }
+  function renderTransparency() {
+    const value = userTransparency ?? (reducedGlass.matches ? 0 : Number(slider.defaultValue));
+    const percent = value + '%';
+    slider.value = String(value);
+    slider.setAttribute('aria-valuetext', percent);
+    glassValue.value = percent;
+    root.style.setProperty('--glass-transparency', percent);
+  }
+  slider.addEventListener('input', () => {
+    userTransparency = slider.valueAsNumber;
+    renderTransparency();
+  });
+  slider.addEventListener('change', () => {
+    try { localStorage.setItem(glassKey, slider.value); } catch { /* Keep the in-page choice. */ }
+  });
+  reducedGlass.addEventListener?.('change', renderTransparency);
+  renderTransparency();
+  const aside = document.querySelector('.rail');
+  const menu = document.querySelector('.menu-toggle');
+  const navLinks = [...document.querySelectorAll('.guide-nav a')];
+  const sections = navLinks.map(a => document.querySelector(a.hash));
+  const mobile = window.matchMedia('(max-width:980px)');
+  const output = document.querySelector('.progress-meta output');
+  const fill = document.querySelector('.meter span');
+  function setMenu(open) {
+    aside.dataset.open = String(open);
+    menu.setAttribute('aria-expanded', String(open));
+    menu.querySelector('span').textContent = open ? '收起目录' : '目录';
+  }
+  menu.addEventListener('click', () => setMenu(aside.dataset.open !== 'true'));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && aside.dataset.open === 'true') {setMenu(false);menu.focus();}
+  });
+  navLinks.forEach(a => a.addEventListener('click', () => {
+    setMenu(false);
+    if (mobile.matches) document.querySelector(a.hash).focus({preventScroll:true});
+  }));
+  document.addEventListener('click', e => {
+    if (aside.dataset.open === 'true' && !aside.contains(e.target)) setMenu(false);
+  });
+  let pending = false;
+  function updateReading() {
+    pending = false;
+    const max = Math.max(1, root.scrollHeight - innerHeight);
+    const position = Math.min(1, Math.max(0, scrollY / max));
+    output.textContent = Math.round(position * 100) + '%';
+    fill.style.transform = 'scaleX(' + position + ')';
+    const threshold = mobile.matches ? 104 : 90;
+    let active = 0;
+    sections.forEach((section,i) => {if (section.getBoundingClientRect().top <= threshold) active = i;});
+    if (scrollY >= max - 2) active = sections.length - 1;
+    navLinks.forEach((link,i) => {if(i===active) link.setAttribute('aria-current','location'); else link.removeAttribute('aria-current');});
+  }
+  function scheduleReading(){if(!pending){pending=true;requestAnimationFrame(updateReading);}}
+  window.addEventListener('scroll',scheduleReading,{passive:true});
+  window.addEventListener('resize',scheduleReading);
+  document.querySelector('.print').addEventListener('click',()=>window.print());
+  const tablist = document.querySelector('.stage-nav');
+  const tabs = [...tablist.querySelectorAll('a')];
+  const panels = tabs.map(a => document.querySelector(a.hash));
+  tablist.setAttribute('role','tablist');
+  function activate(idx, focus=false) {
+    tabs.forEach((tab,i) => {tab.setAttribute('aria-selected',String(i===idx));tab.tabIndex=i===idx?0:-1;panels[i].hidden=i!==idx;});
+    if(focus) tabs[idx].focus();
+  }
+  tabs.forEach((tab,i)=>{
+    tab.setAttribute('role','tab');tab.setAttribute('aria-controls',panels[i].id);
+    panels[i].setAttribute('role','tabpanel');panels[i].setAttribute('aria-labelledby',tab.id);panels[i].tabIndex=0;
+    tab.addEventListener('click',event=>{event.preventDefault();activate(i);});
+    tab.addEventListener('keydown',event=>{
+      const keys={ArrowLeft:(i+tabs.length-1)%tabs.length,ArrowRight:(i+1)%tabs.length,Home:0,End:tabs.length-1};
+      if(Object.hasOwn(keys,event.key)){event.preventDefault();activate(keys[event.key],true);}
+    });
+  });
+  const depMap = document.querySelector('#module-dependency-map');
+  const depOrigin = depMap.querySelector('#dep-origin');
+  const depEdges = [...depMap.querySelectorAll('.dep-edge')];
+  const depModules = [...depMap.querySelectorAll('.dep-module')];
+  const depStatus = depMap.querySelector('.dep-map-status');
+  const depSummary = depStatus.textContent;
+  function showModuleDependencies() {
+    const origin = depOrigin.value;
+    const targets = new Set();
+    depEdges.forEach(edge => {
+      const matches = edge.dataset.source === origin;
+      edge.classList.toggle('is-origin', matches);
+      edge.classList.toggle('is-muted', Boolean(origin) && !matches);
+      if (matches) targets.add(edge.dataset.target);
+    });
+    depModules.forEach(link => link.classList.toggle('is-origin', link.dataset.module === origin));
+    depStatus.textContent = !origin ? depSummary : targets.size
+      ? origin + ' 直接依赖 ' + [...targets].join('、') + '。'
+      : origin + ' 没有直接依赖其他业务模块。';
+  }
+  depOrigin.addEventListener('change', showModuleDependencies);
+  const depLens = depMap.querySelector('.dep-lens');
+  const depTrigger = depLens.querySelector('.dep-trigger');
+  const depValue = depTrigger.querySelector('.dep-trigger-value');
+  const depList = depLens.querySelector('.dep-options');
+  const depLabel = depLens.querySelector('label');
+  const sources = [...depOrigin.options];
+  const branchIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="12" y="8" width="5" height="5" rx="1.3"/><rect x="2" y="13" width="5" height="5" rx="1.3"/><path d="M4.5 7v6m0-2.5H12"/></svg>';
+  const checkIcon = '<svg class="dep-check" viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg>';
+  function choiceText(className, text) {
+    const span = document.createElement('span');
+    span.className = className;
+    span.textContent = text;
+    return span;
+  }
+  const choices = sources.map((option, index) => {
+    const row = document.createElement('li');
+    row.id = 'dep-choice-' + (option.value || 'all');
+    row.className = 'dep-option';
+    row.setAttribute('role', 'option');
+    row.dataset.index = String(index);
+    row.setAttribute('aria-label', option.text);
+    const swatch = choiceText('dep-swatch', '');
+    swatch.setAttribute('aria-hidden', 'true');
+    row.append(swatch);
+    if (option.value) {
+      const module = depModules.find(link => link.dataset.module === option.value);
+      const role = module.querySelector('.dep-module-role').textContent;
+      swatch.dataset.module = option.value;
+      swatch.style.setProperty('--route', module.style.getPropertyValue('--route'));
+      row.append(choiceText('dep-code', option.value), choiceText('dep-option-role', role));
+    } else {
+      swatch.innerHTML = branchIcon;
+      row.append(choiceText('dep-all-name', option.text));
+    }
+    row.insertAdjacentHTML('beforeend', checkIcon);
+    depList.append(row);
+    return row;
+  });
+
+  // Keep the menu outside the diagram's clipped glass surface.
+  document.body.append(depList);
+  let activeIndex = 0;
+  let positionFrame = 0;
+  let searchPrefix = '';
+  let lastTyped = 0;
+  function syncChoice() {
+    const current = depOrigin.selectedIndex;
+    choices.forEach((row, i) => row.setAttribute('aria-selected', String(i === current)));
+    const [swatch, name, detail] = choices[current].children;
+    depTrigger.querySelector('.dep-swatch').replaceWith(swatch.cloneNode(true));
+    depValue.replaceChildren(name.cloneNode(true));
+    if (sources[current].value) depValue.append(choiceText('dep-trigger-role', detail.textContent));
+  }
+  function closeChoices() {
+    depTrigger.setAttribute('aria-expanded', 'false');
+    depTrigger.removeAttribute('aria-activedescendant');
+    depList.hidden = true;
+    searchPrefix = '';
+    cancelAnimationFrame(positionFrame);
+    positionFrame = 0;
+  }
+  function positionChoices() {
+    const r = depTrigger.getBoundingClientRect();
+    const vp = window.visualViewport;
+    const left = (vp?.offsetLeft || 0) + 8;
+    const right = left + (vp?.width || innerWidth) - 16;
+    const top = Math.max((vp?.offsetTop || 0) + 8, mobile.matches ? aside.getBoundingClientRect().bottom + 5 : 0);
+    const bottom = (vp?.offsetTop || 0) + (vp?.height || innerHeight) - 8;
+    if (r.bottom <= top || r.top >= bottom) {closeChoices();return;}
+    const minWidth = right - left < 620 ? 224 : 250;
+    const width = Math.min(Math.max(minWidth, r.width), right - left);
+    depList.style.width = width + 'px';
+    const contentHeight = depList.scrollHeight + depList.offsetHeight - depList.clientHeight;
+    const below = bottom - r.bottom - 5;
+    const above = r.top - top - 5;
+    const goesUp = below < contentHeight && above > below;
+    depList.style.maxHeight = Math.max(0, goesUp ? above : below) + 'px';
+    depList.style.left = Math.max(left, Math.min(r.right - width, right - width)) + 'px';
+    depList.style.top = (goesUp ? r.top - 5 - depList.offsetHeight : r.bottom + 5) + 'px';
+  }
+  function scheduleChoices(event) {
+    if (depList.hidden || event.target === depList || positionFrame) return;
+    positionFrame = requestAnimationFrame(() => {positionFrame = 0;positionChoices();});
+  }
+  function markChoice(index, reveal = true) {
+    choices[activeIndex].removeAttribute('data-active');
+    activeIndex = index;
+    const row = choices[index];
+    row.setAttribute('data-active', '');
+    depTrigger.setAttribute('aria-activedescendant', row.id);
+    if (reveal) {
+      const y = row.offsetTop, bottom = y + row.offsetHeight;
+      if (y < depList.scrollTop + 5) depList.scrollTop = Math.max(0, y - 5);
+      else if (bottom > depList.scrollTop + depList.clientHeight - 5) depList.scrollTop = bottom - depList.clientHeight + 5;
+    }
+  }
+  function openChoices() {
+    depTrigger.setAttribute('aria-expanded', 'true');
+    depList.hidden = false;
+    positionChoices();
+    if (!depList.hidden) markChoice(depOrigin.selectedIndex);
+  }
+  function commitChoice(index) {
+    depOrigin.selectedIndex = index;
+    depOrigin.dispatchEvent(new Event('change', {bubbles:true}));
+    closeChoices();
+  }
+  depOrigin.addEventListener('change', syncChoice);
+  depTrigger.addEventListener('click', event => {
+    depTrigger.focus({preventScroll:true});
+    if (depList.hidden) openChoices();
+    else if (event.detail === 0) commitChoice(activeIndex);
+    else closeChoices();
+  });
+  depTrigger.addEventListener('keydown', event => {
+    const key = event.key, open = !depList.hidden;
+    if (key === 'Tab') {if (open) commitChoice(activeIndex);return;}
+    if (key === 'Escape') {if (open) {event.preventDefault();event.stopPropagation();closeChoices();}return;}
+    if (key === 'ArrowDown' || key === 'ArrowUp' || key === 'Home' || key === 'End') {
+      event.preventDefault();
+      if (!open) openChoices();
+      if (key === 'Home') markChoice(0);
+      else if (key === 'End') markChoice(choices.length - 1);
+      else if (open) markChoice(Math.max(0, Math.min(choices.length - 1, activeIndex + (key === 'ArrowDown' ? 1 : -1))));
+    } else if (key !== ' ' && key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.isComposing) {
+      if (!open) openChoices();
+      const now = performance.now();
+      const character = key.toLowerCase();
+      searchPrefix = now - lastTyped > 650 || searchPrefix === character ? character : searchPrefix + character;
+      lastTyped = now;
+      const index = sources.findIndex(option => option.text.toLowerCase().split(' · ').some(part => part.startsWith(searchPrefix)));
+      if (index >= 0) {event.preventDefault();markChoice(index);}
+    }
+  });
+  depList.addEventListener('pointermove', event => {
+    const row = event.target.closest('.dep-option');
+    if (row && event.pointerType === 'mouse') markChoice(Number(row.dataset.index), false);
+  });
+  depList.addEventListener('mousedown', event => event.preventDefault());
+  depList.addEventListener('click', event => {
+    const row = event.target.closest('.dep-option');
+    if (row) {commitChoice(Number(row.dataset.index));depTrigger.focus({preventScroll:true});}
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!depList.hidden && !depLens.contains(event.target) && !depList.contains(event.target)) closeChoices();
+  });
+  document.addEventListener('focusin', event => {
+    if (!depList.hidden && event.target !== depTrigger && !depList.contains(event.target)) closeChoices();
+  });
+  window.addEventListener('scroll', scheduleChoices, {capture:true, passive:true});
+  window.addEventListener('resize', scheduleChoices);
+  window.visualViewport?.addEventListener('resize', scheduleChoices);
+  window.visualViewport?.addEventListener('scroll', scheduleChoices);
+  depLabel.htmlFor = depTrigger.id;
+  depOrigin.hidden = true;
+  syncChoice();
+  depTrigger.hidden = false;
+  depLens.hidden = false;
+  showModuleDependencies();
+
+  const selected = tabs.findIndex(t => t.hash === location.hash);
+  activate(Math.max(0, selected));
+  setMenu(false);root.classList.add('enhanced');updateReading();
+})();
+</script></body></html>
